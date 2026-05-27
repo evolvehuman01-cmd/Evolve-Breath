@@ -1,0 +1,27 @@
+{
+  "name": "Evolve:Breath",
+  "short_name": "Evolve:Breath",
+  "description": "Gentle breathwork for CFS/ME — paced to your energy level.",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#e8f2fb",
+  "theme_color": "#2f354a",
+  "categories": ["health", "lifestyle", "medical"],
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [],
+  "prefer_related_applications": false
+}
