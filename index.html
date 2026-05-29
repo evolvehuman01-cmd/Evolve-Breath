@@ -10,6 +10,10 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Evolve:Breath">
 <link rel="manifest" href="manifest.json">
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 <link rel="apple-touch-icon" href="icon-192.png">
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Poppins:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
@@ -318,7 +322,67 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
 .good-dot{background:#A5D6A7}
 
 .data-empty-icon{font-size:36px;margin-bottom:12px;display:block}
-.today-label{color:#fd6f15;font-weight:500}</style>
+.today-label{color:#fd6f15;font-weight:500}
+/* SUGGEST A FEATURE */
+.suggest-card{background:white;border:1.5px solid #e2e2e8;border-radius:20px;padding:24px;margin-bottom:16px;display:flex;gap:16px;align-items:flex-start}
+.suggest-icon{font-size:32px;line-height:1;flex-shrink:0;margin-top:2px}
+.suggest-body{flex:1}
+.suggest-title{font-family:'Montserrat',sans-serif;font-size:16px;font-weight:600;color:#2f354a;margin-bottom:8px}
+.suggest-desc{font-size:13px;color:#6e6e73;line-height:1.7;margin-bottom:14px;font-weight:300}
+.suggest-tags{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:18px}
+.suggest-tag{font-size:10px;text-transform:uppercase;letter-spacing:.08em;padding:3px 10px;border-radius:20px;background:#e8f2fb;color:#2f354a;font-family:'Poppins',sans-serif}
+.suggest-btn{display:flex;align-items:center;justify-content:space-between;background:#fd6f15;color:white;text-decoration:none;border-radius:50px;padding:14px 22px;font-family:'Poppins',sans-serif;font-size:14px;font-weight:500;transition:background .2s;-webkit-tap-highlight-color:transparent}
+.suggest-btn:hover{background:#e05c0e}
+.suggest-arrow{font-size:18px;line-height:1}
+.suggest-privacy{font-size:12px;color:#6e6e73;line-height:1.7;font-style:italic;text-align:center;padding:0 8px}
+
+/* ── AUTH SCREENS ─────────────────────────────────── */
+.auth-wrap{display:flex;flex-direction:column;align-items:center;text-align:center;padding:20px 0}
+.auth-logo{font-size:48px;margin-bottom:16px}
+.auth-title{font-family:'Montserrat',sans-serif;font-size:28px;font-weight:600;color:#2f354a;margin-bottom:6px}
+.auth-subtitle{font-size:14px;color:#6e6e73;margin-bottom:32px;line-height:1.6;font-weight:300}
+.auth-form{width:100%;display:flex;flex-direction:column;gap:12px;margin-bottom:20px}
+.auth-input{width:100%;border:1.5px solid #e2e2e8;border-radius:12px;padding:14px 16px;font-family:'Poppins',sans-serif;font-size:15px;color:#2f354a;background:white;outline:none;transition:border-color .2s}
+.auth-input:focus{border-color:#fd6f15}
+.auth-input::placeholder{color:#6e6e73}
+.auth-btn{width:100%;background:#fd6f15;color:white;border:none;border-radius:50px;padding:16px;font-family:'Poppins',sans-serif;font-size:15px;font-weight:500;cursor:pointer;transition:background .2s;margin-top:4px}
+.auth-btn:hover{background:#e05c0e}
+.auth-btn:disabled{background:#e2e2e8;color:#6e6e73;cursor:not-allowed}
+.auth-divider{display:flex;align-items:center;gap:12px;margin:4px 0}
+.auth-divider-line{flex:1;height:1px;background:#e2e2e8}
+.auth-divider-text{font-size:12px;color:#6e6e73;white-space:nowrap}
+.auth-google-btn{width:100%;background:white;color:#2f354a;border:1.5px solid #e2e2e8;border-radius:50px;padding:14px;font-family:'Poppins',sans-serif;font-size:14px;font-weight:500;cursor:pointer;transition:border-color .2s,background .2s;display:flex;align-items:center;justify-content:center;gap:10px}
+.auth-google-btn:hover{border-color:#fd6f15;background:#fef0e6}
+.auth-google-icon{width:20px;height:20px}
+.auth-switch{font-size:13px;color:#6e6e73;margin-top:8px}
+.auth-switch button{background:none;border:none;color:#fd6f15;cursor:pointer;font-family:'Poppins',sans-serif;font-size:13px;font-weight:500;text-decoration:underline;padding:0}
+.auth-error{background:#FFEBEE;border:1px solid #FF8A80;border-radius:10px;padding:10px 14px;font-size:13px;color:#c62828;text-align:left;display:none}
+.auth-error.show{display:block}
+.auth-loading{display:none;font-size:13px;color:#6e6e73;text-align:center;padding:8px 0}
+.auth-loading.show{display:block}
+
+/* ── PROFILE / HEADER ─────────────────────────────── */
+.app-header-row{display:flex;align-items:center;justify-content:space-between;padding:32px 0 16px}
+.app-logo-wrap{text-align:center;flex:1}
+.profile-btn{width:38px;height:38px;border-radius:50%;background:#2f354a;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;color:white;font-family:'Poppins',sans-serif;font-weight:600;flex-shrink:0;transition:background .2s}
+.profile-btn:hover{background:#fd6f15}
+.profile-spacer{width:38px}
+
+/* ── PROFILE SCREEN ───────────────────────────────── */
+.profile-section{margin-bottom:24px}
+.profile-section-title{font-family:'Montserrat',sans-serif;font-size:16px;font-weight:600;color:#2f354a;margin-bottom:14px;padding-bottom:8px;border-bottom:1px solid #e2e2e8}
+.profile-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #f5f5f2}
+.profile-row:last-child{border-bottom:none}
+.profile-label{font-size:13px;color:#6e6e73}
+.profile-value{font-size:13px;color:#2f354a;font-weight:500;text-align:right}
+.profile-stat{flex:1;background:white;border:1.5px solid #e2e2e8;border-radius:var(--radius);padding:14px;text-align:center}
+.profile-stat-num{font-family:'Montserrat',sans-serif;font-size:28px;font-weight:300;color:#2f354a;line-height:1}
+.profile-stat-label{font-size:10px;color:#6e6e73;text-transform:uppercase;letter-spacing:.08em;margin-top:4px;font-family:'Poppins',sans-serif}
+.profile-stats-row{display:flex;gap:10px;margin-bottom:16px}
+.signout-btn{width:100%;background:transparent;color:#6e6e73;border:1.5px solid #e2e2e8;border-radius:50px;padding:14px;font-family:'Poppins',sans-serif;font-size:14px;cursor:pointer;transition:all .2s;margin-top:8px}
+.signout-btn:hover{border-color:#FF8A80;color:#E53935}
+.privacy-text{font-size:11px;color:#6e6e73;line-height:1.7;text-align:center;padding:0 8px;font-style:italic}
+</style>
 </head>
 <body>
 <div class="app">
@@ -329,24 +393,115 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
     <div class="banner-sub" id="banner-sub"></div>
   </div>
 
-  <div class="header">
-    <div class="logo-mark">
-      <div class="logo-icon">
-        <svg viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <circle cx="18" cy="18" r="16" stroke="#fd6f15" stroke-width="1.2"/>
-          <ellipse cx="18" cy="18" rx="10" ry="10" fill="none" stroke="#a0a0c0" stroke-width="1"/>
-          <circle cx="18" cy="18" r="4" fill="#2f354a" opacity="0.8"/>
-          <path d="M18 6 Q22 12 18 18 Q14 24 18 30" stroke="#fd6f15" stroke-width="0.8" fill="none" opacity="0.6"/>
-          <path d="M6 18 Q12 14 18 18 Q24 22 30 18" stroke="#a0a0c0" stroke-width="0.8" fill="none" opacity="0.6"/>
-        </svg>
+  <!-- AUTH-AWARE HEADER (shown when logged in) -->
+  <div class="app-header-row" id="app-header" style="display:none">
+    <div class="profile-spacer"></div>
+    <div class="app-logo-wrap">
+      <div class="logo-mark" style="justify-content:center">
+        <div class="logo-icon">
+          <svg viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="18" cy="18" r="16" stroke="#fd6f15" stroke-width="1.2"/>
+            <ellipse cx="18" cy="18" rx="10" ry="10" fill="none" stroke="#fd6f15" stroke-width="1" opacity=".5"/>
+            <circle cx="18" cy="18" r="4" fill="#2f354a" opacity="0.8"/>
+            <path d="M18 6 Q22 12 18 18 Q14 24 18 30" stroke="#fd6f15" stroke-width="0.8" fill="none" opacity="0.6"/>
+            <path d="M6 18 Q12 14 18 18 Q24 22 30 18" stroke="#fd6f15" stroke-width="0.8" fill="none" opacity="0.6"/>
+          </svg>
+        </div>
+        <div class="logo-text">Evolve<span>:Breath</span></div>
       </div>
-      <div class="logo-text">Evolve<span>:Breath</span></div>
+      <div class="tagline">Breathwork for CFS / ME</div>
     </div>
-    <div class="tagline">Breathwork for CFS / ME</div>
+    <button class="profile-btn" id="profile-btn" onclick="show('profile')" title="Your profile">?</button>
+  </div>
+
+  <!-- AUTH SCREEN -->
+  <div class="screen active" id="screen-auth">
+    <div class="auth-wrap">
+      <div class="auth-logo">🌿</div>
+      <div class="auth-title">Evolve:Breath</div>
+      <div class="auth-subtitle">Gentle breathwork for CFS/ME.<br>Sign in to track your progress.</div>
+      <div id="auth-signin" style="width:100%">
+        <div class="auth-form">
+          <input class="auth-input" type="email"    id="si-email"    placeholder="Email address" autocomplete="email">
+          <input class="auth-input" type="password" id="si-password" placeholder="Password" autocomplete="current-password">
+          <div class="auth-error" id="si-error"></div>
+          <div class="auth-loading" id="si-loading">Signing in…</div>
+          <button class="auth-btn" onclick="doSignIn()">Sign in</button>
+        </div>
+        <div class="auth-divider"><div class="auth-divider-line"></div><div class="auth-divider-text">or</div><div class="auth-divider-line"></div></div>
+        <button class="auth-google-btn" onclick="doGoogleSignIn()">
+          <svg class="auth-google-icon" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+          Continue with Google
+        </button>
+        <div class="auth-switch">No account? <button onclick="showAuthPanel('signup')">Create one</button></div>
+      </div>
+      <div id="auth-signup" style="display:none;width:100%">
+        <div class="auth-form">
+          <input class="auth-input" type="text"     id="su-name"     placeholder="Your first name" autocomplete="given-name">
+          <input class="auth-input" type="email"    id="su-email"    placeholder="Email address" autocomplete="email">
+          <input class="auth-input" type="password" id="su-password" placeholder="Password (min 6 characters)" autocomplete="new-password">
+          <div class="auth-error" id="su-error"></div>
+          <div class="auth-loading" id="su-loading">Creating account…</div>
+          <button class="auth-btn" onclick="doSignUp()">Create account</button>
+        </div>
+        <div class="auth-divider"><div class="auth-divider-line"></div><div class="auth-divider-text">or</div><div class="auth-divider-line"></div></div>
+        <button class="auth-google-btn" onclick="doGoogleSignIn()">
+          <svg class="auth-google-icon" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+          Continue with Google
+        </button>
+        <div class="auth-switch">Already have an account? <button onclick="showAuthPanel('signin')">Sign in</button></div>
+        <p class="privacy-text" style="margin-top:16px">By creating an account you agree to our <a href="#" onclick="show('privacy')" style="color:#fd6f15">Privacy Policy</a>. Your health data is stored securely and never shared.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- PROFILE SCREEN -->
+  <div class="screen" id="screen-profile">
+    <button class="back-btn" onclick="show('energy')">← Back</button>
+    <div class="section-label">Your account</div>
+    <div class="screen-title" id="profile-name-title">Profile</div>
+    <div class="profile-stats-row">
+      <div class="profile-stat"><div class="profile-stat-num" id="stat-total">0</div><div class="profile-stat-label">Sessions</div></div>
+      <div class="profile-stat"><div class="profile-stat-num" id="stat-streak">0</div><div class="profile-stat-label">Day streak</div></div>
+      <div class="profile-stat"><div class="profile-stat-num" id="stat-this-week">0</div><div class="profile-stat-label">This week</div></div>
+    </div>
+    <div class="profile-section">
+      <div class="profile-section-title">Account</div>
+      <div class="profile-row"><span class="profile-label">Name</span><span class="profile-value" id="profile-display-name">—</span></div>
+      <div class="profile-row"><span class="profile-label">Email</span><span class="profile-value" id="profile-email">—</span></div>
+      <div class="profile-row"><span class="profile-label">Member since</span><span class="profile-value" id="profile-since">—</span></div>
+    </div>
+    <div class="profile-section">
+      <div class="profile-section-title">Reminders</div>
+      <div class="profile-row"><span class="profile-label">Morning</span><span class="profile-value" id="profile-morning">Not set</span></div>
+      <div class="profile-row"><span class="profile-label">Evening</span><span class="profile-value" id="profile-evening">Not set</span></div>
+    </div>
+    <button class="signout-btn" onclick="doSignOut()">Sign out</button>
+  </div>
+
+  <!-- PRIVACY POLICY SCREEN -->
+  <div class="screen" id="screen-privacy">
+    <button class="back-btn" onclick="show('auth')">← Back</button>
+    <div class="section-label">Legal</div>
+    <div class="screen-title">Privacy Policy</div>
+    <div style="font-size:13px;color:#6e6e73;line-height:1.8;font-weight:300">
+      <p style="margin-bottom:12px"><strong style="color:#2f354a">Last updated: 2025</strong></p>
+      <p style="margin-bottom:12px">Evolve:Breath is a breathwork application designed for people with CFS/ME. This policy explains how we collect, use, and protect your data.</p>
+      <p style="margin-bottom:8px"><strong style="color:#2f354a">What we collect</strong></p>
+      <p style="margin-bottom:12px">Name, email address, session history (drill name, energy level, goal, duration, timestamp), and reminder preferences. No sensitive medical data beyond what you voluntarily enter.</p>
+      <p style="margin-bottom:8px"><strong style="color:#2f354a">How we use it</strong></p>
+      <p style="margin-bottom:12px">To provide personalised session tracking, progress over time, and reminders. We do not sell, share, or use your data for advertising.</p>
+      <p style="margin-bottom:8px"><strong style="color:#2f354a">Data storage</strong></p>
+      <p style="margin-bottom:12px">Data is stored securely via Google Firebase (Firestore), protected by Google's security infrastructure.</p>
+      <p style="margin-bottom:8px"><strong style="color:#2f354a">Your rights</strong></p>
+      <p style="margin-bottom:12px">You can request deletion of your account and all associated data at any time. Under GDPR you have the right to access, correct, or erase your data.</p>
+      <p style="margin-bottom:8px"><strong style="color:#2f354a">Contact</strong></p>
+      <p>For privacy queries use the Suggest a Feature form and mark your message as a privacy request.</p>
+    </div>
   </div>
 
   <!-- SCREEN 1: Energy -->
-  <div class="screen active" id="screen-energy">
+  <div class="screen" id="screen-energy">
     <!-- Menu always shown at top of home screen -->
     <div class="menu-wrap">
       <button class="menu-btn" id="menu-btn" onclick="toggleMenu()">
@@ -357,6 +512,7 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
         <button class="menu-item" onclick="menuGo(showHistory)"><span class="menu-item-icon">📊</span> History &amp; Data</button>
         <button class="menu-item" onclick="menuGo(showReminders)"><span class="menu-item-icon">🔔</span> Reminders</button>
         <button class="menu-item" onclick="menuGo(showResources)"><span class="menu-item-icon">📚</span> Resources</button>
+        <button class="menu-item" onclick="menuGo(showSuggest)"><span class="menu-item-icon">💡</span> Suggest a Feature</button>
       </div>
     </div>
     <div class="section-label">Step 1 of 3</div>
@@ -891,6 +1047,34 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
     </div>
   </div>
 
+  <!-- SCREEN: Suggest a Feature -->
+  <div class="screen" id="screen-suggest">
+    <button class="back-btn" onclick="show('energy')">← Back</button>
+    <div class="section-label">Shape the app</div>
+    <div class="screen-title">Suggest a Feature</div>
+    <div class="screen-subtitle">Your experience with CFS/ME is what makes this app better. Every suggestion is read by the creator.</div>
+
+    <div class="suggest-card">
+      <div class="suggest-icon">💡</div>
+      <div class="suggest-body">
+        <div class="suggest-title">What would you like to see?</div>
+        <div class="suggest-desc">Tell us what would improve your breathwork practice — a new drill, a design change, a feature that's missing, or anything else.</div>
+        <div class="suggest-tags">
+          <span class="suggest-tag">Anonymous by default</span>
+          <span class="suggest-tag">Read by the creator</span>
+          <span class="suggest-tag">Informs future updates</span>
+        </div>
+        <a class="suggest-btn" href="https://forms.gle/kgX58kGhR3Pb7cLs5" target="_blank" onclick="trackSuggest()">
+          Open suggestion form
+          <span class="suggest-arrow">→</span>
+        </a>
+      </div>
+    </div>
+
+    <div class="suggest-privacy">
+      Your suggestion is submitted directly to the creator via Google Forms. Email is optional and will only be used to follow up on your suggestion if needed. Suggestions are never shared publicly.
+    </div>
+  </div>
 </div>
 <script>
 var GOALS={
@@ -1701,7 +1885,342 @@ function dismissBanner(){
   document.getElementById('reminder-banner').classList.remove('show');
 }
 
+
+function showSuggest(){show('suggest')}
+function trackSuggest(){/* future analytics hook */}
 function makeCrumbs(items){var labels={flare:'🔴 Flare Day',moderate:'🟠 Moderate Day',good:'🟢 Good Day'};return items.map(function(x,i){var label=labels[x]||x,active=i===items.length-1?' active':'',sep=i<items.length-1?'<span class="crumb-dot"></span>':'';return'<span class="crumb'+active+'">'+label+'</span>'+sep}).join('')}
+
+
+/* ═══════════════════════════════════════════════════
+   FIREBASE & AUTH
+═══════════════════════════════════════════════════ */
+var firebaseConfig={
+  apiKey:"AIzaSyBCZuCM-8fI27Iu6v4zE4AT3J2DA0IgM0w",
+  authDomain:"evolvehuman01-cmd.github.io",
+  projectId:"evolve-breath",
+  storageBucket:"evolve-breath.firebasestorage.app",
+  messagingSenderId:"209396409999",
+  appId:"1:209396409999:web:356630ecc415c32c2532fa"
+};
+firebase.initializeApp(firebaseConfig);
+var auth=firebase.auth();
+var db=firebase.firestore();
+var currentUser=null;
+
+/* Auth state listener */
+auth.onAuthStateChanged(function(user){
+  if(user){
+    currentUser=user;
+    onUserLoggedIn(user);
+  } else {
+    currentUser=null;
+    onUserLoggedOut();
+  }
+});
+
+function onUserLoggedIn(user){
+  document.getElementById('app-header').style.display='flex';
+  document.getElementById('screen-auth').classList.remove('active');
+  /* Update profile button with initial */
+  var initial=(user.displayName||user.email||'?')[0].toUpperCase();
+  document.getElementById('profile-btn').textContent=initial;
+  /* Load user profile from Firestore */
+  loadUserProfile(user);
+  /* Migrate any localStorage sessions to Firestore */
+  migrateLocalSessions(user.uid);
+  /* Show energy screen */
+  show('energy');
+}
+
+function onUserLoggedOut(){
+  document.getElementById('app-header').style.display='none';
+  /* Hide all screens and show auth */
+  var all=document.querySelectorAll('.screen');
+  for(var i=0;i<all.length;i++) all[i].classList.remove('active');
+  document.getElementById('screen-auth').classList.add('active');
+}
+
+/* ── SIGN IN ── */
+function doSignIn(){
+  var email=document.getElementById('si-email').value.trim();
+  var pass=document.getElementById('si-password').value;
+  var errEl=document.getElementById('si-error');
+  var loadEl=document.getElementById('si-loading');
+  errEl.classList.remove('show');
+  if(!email||!pass){showAuthError('si-error','Please fill in all fields.');return;}
+  loadEl.classList.add('show');
+  document.querySelector('#auth-signin .auth-btn').disabled=true;
+  auth.signInWithEmailAndPassword(email,pass)
+    .catch(function(e){
+      loadEl.classList.remove('show');
+      document.querySelector('#auth-signin .auth-btn').disabled=false;
+      showAuthError('si-error',friendlyAuthError(e.code));
+    });
+}
+
+/* ── SIGN UP ── */
+function doSignUp(){
+  var name=document.getElementById('su-name').value.trim();
+  var email=document.getElementById('su-email').value.trim();
+  var pass=document.getElementById('su-password').value;
+  var errEl=document.getElementById('su-error');
+  var loadEl=document.getElementById('su-loading');
+  errEl.classList.remove('show');
+  if(!name||!email||!pass){showAuthError('su-error','Please fill in all fields.');return;}
+  if(pass.length<6){showAuthError('su-error','Password must be at least 6 characters.');return;}
+  loadEl.classList.add('show');
+  document.querySelector('#auth-signup .auth-btn').disabled=true;
+  auth.createUserWithEmailAndPassword(email,pass)
+    .then(function(cred){
+      return cred.user.updateProfile({displayName:name}).then(function(){
+        return createUserProfile(cred.user,name);
+      });
+    })
+    .catch(function(e){
+      loadEl.classList.remove('show');
+      document.querySelector('#auth-signup .auth-btn').disabled=false;
+      showAuthError('su-error',friendlyAuthError(e.code));
+    });
+}
+
+/* ── GOOGLE SIGN IN ── */
+function doGoogleSignIn(){
+  var provider=new firebase.auth.GoogleAuthProvider();
+  auth.signInWithPopup(provider)
+    .then(function(result){
+      /* Create profile if first time */
+      var user=result.user;
+      db.collection('users').doc(user.uid).get().then(function(doc){
+        if(!doc.exists) createUserProfile(user, user.displayName||user.email.split('@')[0]);
+      });
+    })
+    .catch(function(e){
+      showAuthError('si-error',friendlyAuthError(e.code));
+    });
+}
+
+/* ── SIGN OUT ── */
+function doSignOut(){
+  if(!confirm('Sign out of Evolve:Breath?'))return;
+  auth.signOut();
+}
+
+/* ── HELPERS ── */
+function showAuthPanel(panel){
+  document.getElementById('auth-signin').style.display=panel==='signin'?'block':'none';
+  document.getElementById('auth-signup').style.display=panel==='signup'?'block':'none';
+}
+
+function showAuthError(id,msg){
+  var el=document.getElementById(id);
+  el.textContent=msg;
+  el.classList.add('show');
+}
+
+function friendlyAuthError(code){
+  var map={
+    'auth/user-not-found':'No account found with that email.',
+    'auth/wrong-password':'Incorrect password. Please try again.',
+    'auth/email-already-in-use':'An account with this email already exists.',
+    'auth/invalid-email':'Please enter a valid email address.',
+    'auth/weak-password':'Password must be at least 6 characters.',
+    'auth/popup-closed-by-user':'Sign-in cancelled.',
+    'auth/network-request-failed':'Network error. Please check your connection.',
+    'auth/invalid-credential':'Incorrect email or password.'
+  };
+  return map[code]||'Something went wrong. Please try again.';
+}
+
+/* ── FIRESTORE PROFILE ── */
+function createUserProfile(user,name){
+  return db.collection('users').doc(user.uid).set({
+    displayName: name,
+    email: user.email,
+    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+    reminders: {morning:null,evening:null}
+  },{merge:true});
+}
+
+function loadUserProfile(user){
+  db.collection('users').doc(user.uid).get().then(function(doc){
+    var data=doc.exists?doc.data():{};
+    /* Update profile screen */
+    var name=data.displayName||user.displayName||'You';
+    document.getElementById('profile-name-title').textContent=name;
+    document.getElementById('profile-display-name').textContent=name;
+    document.getElementById('profile-email').textContent=user.email||'—';
+    var since=user.metadata.creationTime?new Date(user.metadata.creationTime).toLocaleDateString([],{month:'long',year:'numeric'}):'—';
+    document.getElementById('profile-since').textContent=since;
+    /* Reminders */
+    var rem=data.reminders||{};
+    document.getElementById('profile-morning').textContent=rem.morning?fmtTime(rem.morning):'Not set';
+    document.getElementById('profile-evening').textContent=rem.evening?fmtTime(rem.evening):'Not set';
+    /* Load session stats */
+    loadSessionStats(user.uid);
+  });
+}
+
+function loadSessionStats(uid){
+  db.collection('users').doc(uid).collection('sessions')
+    .orderBy('ts','desc').limit(100)
+    .get().then(function(snap){
+      var sessions=[];
+      snap.forEach(function(d){sessions.push(d.data())});
+      /* Total */
+      document.getElementById('stat-total').textContent=sessions.length;
+      /* This week */
+      var now=new Date(),weekAgo=new Date(now-7*86400000);
+      var thisWeek=sessions.filter(function(s){return new Date(s.ts)>=weekAgo}).length;
+      document.getElementById('stat-this-week').textContent=thisWeek;
+      /* Streak — consecutive days with at least one session */
+      var streak=calcStreak(sessions);
+      document.getElementById('stat-streak').textContent=streak;
+    });
+}
+
+function calcStreak(sessions){
+  if(!sessions.length)return 0;
+  var days=new Set(sessions.map(function(s){
+    return new Date(s.ts).toDateString();
+  }));
+  var streak=0,d=new Date();
+  d.setHours(0,0,0,0);
+  while(days.has(d.toDateString())){
+    streak++;
+    d.setDate(d.getDate()-1);
+  }
+  return streak;
+}
+
+/* ── SESSION SYNC ── */
+/* Override saveSession to write to Firestore */
+function saveSession(){
+  var entry={
+    drill:S.drill.name, rounds:S.drill.rounds,
+    goal:S.goal, energy:S.energy,
+    timeLabel:S.timeLabel, ts:Date.now()
+  };
+  /* Always save to localStorage as backup */
+  var h=loadHistory();
+  h.unshift(entry);
+  if(h.length>100)h=h.slice(0,100);
+  try{localStorage.setItem('evolve_history',JSON.stringify(h));}catch(e){}
+  /* Save to Firestore if logged in */
+  if(currentUser){
+    db.collection('users').doc(currentUser.uid)
+      .collection('sessions').add(entry)
+      .catch(function(e){console.warn('Session sync failed:',e)});
+  }
+}
+
+/* Override loadHistory to read from Firestore */
+function loadHistory(){
+  try{var r=localStorage.getItem('evolve_history');return r?JSON.parse(r):[]}
+  catch(e){return[]}
+}
+
+/* Firestore history for display — merges local + cloud */
+function loadHistoryForDisplay(callback){
+  if(!currentUser){callback(loadHistory());return;}
+  db.collection('users').doc(currentUser.uid).collection('sessions')
+    .orderBy('ts','desc').limit(100)
+    .get().then(function(snap){
+      var sessions=[];
+      snap.forEach(function(d){sessions.push(d.data())});
+      callback(sessions);
+    }).catch(function(){callback(loadHistory())});
+}
+
+/* Migrate localStorage sessions to Firestore on first login */
+function migrateLocalSessions(uid){
+  var local=loadHistory();
+  if(!local.length)return;
+  /* Check if already migrated */
+  db.collection('users').doc(uid).get().then(function(doc){
+    if(doc.exists&&doc.data().migrated)return;
+    var batch=db.batch();
+    local.forEach(function(s){
+      var ref=db.collection('users').doc(uid).collection('sessions').doc();
+      batch.set(ref,s);
+    });
+    batch.commit().then(function(){
+      db.collection('users').doc(uid).update({migrated:true});
+      console.log('Migrated '+local.length+' sessions to Firestore');
+    });
+  });
+}
+
+/* Override reminders to sync with Firestore */
+function saveReminders(){
+  var w=document.getElementById('wake-input').value;
+  var s=document.getElementById('sleep-input').value;
+  var data={wake:w,sleep:s,morning:w?addMins(w,30):null,evening:s?addMins(s,-15):null};
+  try{localStorage.setItem('evolve_reminders',JSON.stringify(data));}catch(e){}
+  /* Sync to Firestore */
+  if(currentUser){
+    db.collection('users').doc(currentUser.uid).update({
+      'reminders.morning':data.morning,
+      'reminders.evening':data.evening,
+      'reminders.wake':w,
+      'reminders.sleep':s
+    }).catch(function(){});
+  }
+  var el=document.getElementById('save-confirm');
+  el.classList.add('show');
+  setTimeout(function(){el.classList.remove('show');},3500);
+  startReminderChecker();
+  /* Refresh profile */
+  if(currentUser) loadUserProfile(currentUser);
+}
+
+/* Update renderSessions to use Firestore */
+function renderSessions(){
+  var body=document.getElementById('history-body');
+  var countEl=document.getElementById('history-count');
+  body.innerHTML='<div class="auth-loading show">Loading sessions…</div>';
+  loadHistoryForDisplay(function(history){
+    countEl.textContent=history.length?history.length+' session'+(history.length===1?'':'s'):'';
+    if(!history.length){
+      body.innerHTML='<div class="history-empty"><div class="history-empty-icon">🌿</div>No sessions yet. Complete a practice and it will appear here.</div>';
+      return;
+    }
+    var html='<div class="history-list">';
+    history.forEach(function(e){
+      var d=new Date(e.ts),diff=Math.floor((Date.now()-e.ts)/86400000);
+      var ds=diff===0?'Today, '+d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})
+            :diff===1?'Yesterday, '+d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})
+            :diff<7?d.toLocaleDateString([],{weekday:'long'})+', '+d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})
+            :d.toLocaleDateString([],{day:'numeric',month:'short',year:'numeric'});
+      var el=ENERGY_LABEL[e.energy]||e.energy;
+      html+='<div class="history-entry">'
+        +'<div class="history-entry-top"><div class="history-drill">'+e.drill+'</div><div class="history-date">'+ds+'</div></div>'
+        +'<div class="history-tags">'
+        +'<span class="tag '+e.energy+'-tag">'+({flare:'🔴',moderate:'🟠',good:'🟢'}[e.energy]||'')+' '+el+'</span>'
+        +'<span class="tag">'+(e.goal||'')+'</span>'
+        +'<span class="tag">'+(e.timeLabel||'')+'</span>'
+        +'<span class="tag">'+(e.rounds||'')+'</span>'
+        +'</div></div>';
+    });
+    html+='</div><button class="history-clear-btn" onclick="clearHistory()">Clear history</button>';
+    body.innerHTML=html;
+  });
+}
+
+function clearHistory(){
+  if(!confirm('Clear all session history?'))return;
+  try{localStorage.removeItem('evolve_history');}catch(e){}
+  if(currentUser){
+    /* Delete all Firestore sessions */
+    db.collection('users').doc(currentUser.uid).collection('sessions')
+      .get().then(function(snap){
+        var batch=db.batch();
+        snap.forEach(function(d){batch.delete(d.ref)});
+        return batch.commit();
+      }).then(function(){renderSessions()});
+    return;
+  }
+  renderSessions();
+}
 
 if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){})})}
 (function(){if(loadRemindersFromStorage())startReminderChecker()})();
