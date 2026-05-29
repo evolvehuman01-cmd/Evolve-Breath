@@ -3,7 +3,7 @@
    Uses a cache-first strategy so the app loads instantly.
 */
 
-var CACHE_NAME = 'evolve-breath-v1';
+var CACHE_NAME = 'evolve-breath-v2';
 
 var ASSETS = [
   './index.html',
