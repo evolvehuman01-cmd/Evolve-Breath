@@ -1,0 +1,2175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Evolve:Breath</title>
+<meta name="description" content="Gentle breathwork for CFS/ME — paced to your energy level.">
+<meta name="theme-color" content="#2f354a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Evolve:Breath">
+<link rel="manifest" href="manifest.json">
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<link rel="apple-touch-icon" href="icon-192.png">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Poppins:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --navy:    #2f354a;
+  --coral:   #fd6f15;
+  --bg:      #e8f2fb;
+  --teal:    #fd6f15;
+  --sky:     #a0a0c0;
+  --teal-lt: #fdaa7a;
+  --teal-bg: #fef0e6;
+  --sky-bg:  #e8f2fb;
+  --coral-bg:#fef0e6;
+  --navy-lt: #3d4560;
+  --mist:    #e2e2e8;
+  --text:    #2f354a;
+  --text-lt: #6e6e73;
+  --radius:  16px;
+  --inhale:  #FFB347;
+  --exhale:  #6B8CAE;
+  --hold:    #9B8EC4;
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Poppins',sans-serif;background:#e8f2fb;color:#2f354a;min-height:100vh}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 70% 55% at 15% 10%,rgba(253,111,21,.1) 0%,transparent 55%),radial-gradient(ellipse 55% 65% at 85% 85%,rgba(253,111,21,.07) 0%,transparent 50%),radial-gradient(ellipse 40% 40% at 70% 15%,rgba(47,53,74,.07) 0%,transparent 50%);pointer-events:none;z-index:0}
+.app{position:relative;z-index:1;max-width:480px;margin:0 auto;padding:0 24px 48px}
+
+/* HEADER */
+.header{padding:40px 0 20px;text-align:center}
+.logo-mark{display:inline-flex;align-items:center;gap:10px;margin-bottom:6px}
+.logo-icon{width:34px;height:34px}
+.logo-icon svg{width:100%;height:100%}
+.logo-text{font-family:'Montserrat',sans-serif;font-size:26px;font-weight:300;letter-spacing:.04em;color:#2f354a}
+.logo-text span{color:#fd6f15;font-style:normal}
+.tagline{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:#6e6e73}
+
+/* MENU BUTTON */
+.menu-wrap{position:relative;margin-bottom:20px;width:100%;z-index:10}
+.menu-btn{display:flex;align-items:center;justify-content:space-between;gap:10px;background:#fd6f15;border:none;border-radius:50px;padding:14px 22px;cursor:pointer;font-family:'Poppins',sans-serif;font-size:14px;font-weight:500;color:white;transition:background .2s,transform .2s;-webkit-tap-highlight-color:transparent;width:100%}
+.menu-btn:hover,.menu-btn.open{background:#e05c0e;color:white}
+.menu-btn-left{display:flex;align-items:center;gap:10px}
+.menu-btn-icon{font-size:20px;line-height:1}
+.menu-chevron{font-size:11px;transition:transform .25s;line-height:1;color:rgba(255,255,255,.8)}
+.menu-btn.open .menu-chevron{transform:rotate(180deg)}
+.menu-dropdown{display:none;position:absolute;top:calc(100% + 6px);left:0;right:0;background:white;border:1.5px solid #e2e2e8;border-radius:var(--radius);overflow:hidden;box-shadow:0 10px 30px rgba(47,53,74,.15);z-index:50}
+.menu-dropdown.open{display:block;animation:fadeUp .2s ease}
+.menu-item{display:flex;align-items:center;gap:14px;padding:16px 22px;cursor:pointer;font-family:'Poppins',sans-serif;font-size:14px;color:#2f354a;border:none;background:none;width:100%;text-align:left;transition:background .15s,color .15s;-webkit-tap-highlight-color:transparent}
+.menu-item:hover{background:#fef0e6;color:#fd6f15}
+.menu-item+.menu-item{border-top:1px solid #f5f5f2}
+.menu-item-icon{font-size:20px;line-height:1;flex-shrink:0}
+
+/* SCREENS */
+.screen{display:none;flex-direction:column;animation:fadeUp .4s ease}
+.screen.active{display:flex}
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+
+/* TYPOGRAPHY */
+.section-label{font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:#6e6e73;margin-bottom:18px}
+.screen-title{font-family:'Montserrat',sans-serif;font-size:30px;font-weight:300;color:#2f354a;line-height:1.2;margin-bottom:8px}
+.screen-subtitle{font-size:14px;color:#6e6e73;line-height:1.6;margin-bottom:28px;font-weight:300}
+
+/* NAV */
+.back-btn{display:inline-flex;align-items:center;gap:6px;background:none;border:none;color:#6e6e73;font-size:13px;cursor:pointer;padding:8px 0;margin-bottom:20px;font-family:'Poppins',sans-serif;transition:color .2s}
+.back-btn:hover{color:#fd6f15}
+.breadcrumb{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-bottom:24px}
+.crumb{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:#6e6e73}
+.crumb.active{color:#fd6f15}
+.crumb-dot{width:3px;height:3px;border-radius:50%;background:#e2e2e8}
+
+/* BUTTONS */
+.btn-primary{background:#2f354a;color:white;border:none;border-radius:50px;padding:14px 36px;font-family:'Poppins',sans-serif;font-size:15px;cursor:pointer;transition:background .25s,transform .25s;-webkit-tap-highlight-color:transparent}
+.btn-primary:hover{background:#3d4560;transform:translateY(-2px)}
+.btn-secondary{background:transparent;color:#6e6e73;border:1.5px solid #e2e2e8;border-radius:50px;padding:14px 28px;font-family:'Poppins',sans-serif;font-size:14px;cursor:pointer;transition:border-color .25s,color .25s;-webkit-tap-highlight-color:transparent}
+.btn-secondary:hover{border-color:#fd6f15;color:#fd6f15}
+.text-btn{background:none;border:none;color:#6e6e73;font-size:13px;cursor:pointer;font-family:'Poppins',sans-serif;text-decoration:underline;text-underline-offset:3px;transition:color .2s;padding:4px 0}
+.text-btn:hover{color:#fd6f15}
+
+/* NOTICES */
+.notice{background:rgba(160,160,192,.08);border-left:3px solid #a0a0c0;border-radius:0 12px 12px 0;padding:14px 16px;font-size:13px;color:#6e6e73;line-height:1.6;margin-bottom:20px;font-style:normal}
+.notice-warning{background:rgba(253,111,21,.08);border-left:3px solid #fd6f15;border-radius:0 12px 12px 0;padding:14px 16px;font-size:13px;color:#6e6e73;line-height:1.6;margin-bottom:20px;font-style:normal}
+
+/* ENERGY CARDS */
+.energy-cards{display:flex;flex-direction:column;gap:14px}
+.energy-card{border-radius:20px;padding:20px 22px;cursor:pointer;border:1.5px solid transparent;transition:transform .25s,border-color .25s;-webkit-tap-highlight-color:transparent}
+.energy-card:hover{transform:translateY(-2px)}
+.energy-card.flare{background:#FFEBEE;border-color:rgba(255,138,128,.35)}
+.energy-card.moderate{background:#FFF8E1;border-color:rgba(255,209,128,.5)}
+.energy-card.good{background:#F1F8E9;border-color:rgba(165,214,167,.5)}
+.energy-card.flare:hover{border-color:#FF8A80}
+.energy-card.moderate:hover{border-color:#FFD180}
+.energy-card.good:hover{border-color:#A5D6A7}
+.energy-row{display:flex;align-items:center;gap:8px;margin-bottom:7px}
+.energy-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+.energy-card.flare .energy-dot{background:#FF8A80}
+.energy-card.moderate .energy-dot{background:#FFD180}
+.energy-card.good .energy-dot{background:#A5D6A7}
+.energy-name{font-family:'Montserrat',sans-serif;font-size:22px;font-weight:400;color:#2f354a}
+.energy-desc{font-size:13px;color:#6e6e73;font-weight:300;line-height:1.5;margin-bottom:10px}
+.energy-durations{display:flex;gap:6px;flex-wrap:wrap}
+.duration-pill{font-size:11px;padding:3px 10px;border-radius:20px;background:rgba(255,255,255,.7);color:#6e6e73}
+
+/* GOAL GRID */
+.goal-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.goal-card{background:white;border:1.5px solid #e2e2e8;border-radius:var(--radius);padding:16px;cursor:pointer;transition:border-color .25s,transform .25s,box-shadow .25s;-webkit-tap-highlight-color:transparent}
+.goal-card:hover{border-color:#fd6f15;transform:translateY(-2px);box-shadow:0 6px 20px rgba(253,111,21,.15)}
+.goal-card.full-width{grid-column:1/-1}
+.goal-icon{font-size:22px;margin-bottom:8px;display:block}
+.goal-name{font-family:'Montserrat',sans-serif;font-size:17px;font-weight:400;color:#2f354a;line-height:1.2}
+.goal-hint{font-size:11px;color:#6e6e73;margin-top:4px}
+
+/* TIME OPTIONS */
+.time-options{display:flex;flex-direction:column;gap:10px}
+.time-btn{background:white;border:1.5px solid #e2e2e8;border-radius:14px;padding:16px 20px;cursor:pointer;transition:border-color .25s,background .25s;display:flex;align-items:center;justify-content:space-between;width:100%;font-family:'Poppins',sans-serif;-webkit-tap-highlight-color:transparent}
+.time-btn:hover{border-color:#fd6f15;background:#fef0e6}
+.time-btn.optional{border-style:dashed;opacity:.78}
+.time-btn.optional:hover{opacity:1}
+.time-label{font-family:'Montserrat',sans-serif;font-size:22px;font-weight:300;color:#2f354a}
+.time-badge{font-size:10px;letter-spacing:.1em;text-transform:uppercase;padding:3px 9px;border-radius:20px}
+.time-badge.rec{color:#fd6f15;background:#fef0e6}
+.time-badge.opt{color:#6e6e73;background:#f5f5f2}
+
+/* DRILL LIST */
+.drill-list{display:flex;flex-direction:column;gap:12px}
+.drill-card{background:white;border:1.5px solid #e2e2e8;border-radius:var(--radius);padding:18px 20px;cursor:pointer;transition:border-color .25s,transform .25s,box-shadow .25s;-webkit-tap-highlight-color:transparent}
+.drill-card:hover{border-color:#fd6f15;transform:translateY(-1px);box-shadow:0 6px 20px rgba(253,111,21,.15)}
+.drill-name{font-family:'Montserrat',sans-serif;font-size:20px;font-weight:400;color:#2f354a;margin-bottom:6px}
+.drill-meta{display:flex;gap:10px;align-items:center}
+.drill-rounds{font-size:12px;color:#6e6e73}
+.drill-tag{font-size:10px;text-transform:uppercase;letter-spacing:.1em;padding:2px 8px;border-radius:10px;background:#fef0e6;color:#fd6f15}
+
+/* PRACTICE */
+.practice-wrap{display:flex;flex-direction:column;align-items:center;text-align:center}
+.practice-top-row{display:flex;align-items:center;justify-content:center;gap:10px;min-height:28px;margin-bottom:4px;width:100%}
+.paused-badge{display:none;font-size:11px;letter-spacing:.15em;text-transform:uppercase;color:#fd6f15;background:#fef0e6;padding:4px 12px;border-radius:20px}
+.paused-badge.show{display:inline-block}
+.mute-btn{background:none;border:1.5px solid #e2e2e8;border-radius:50%;width:34px;height:34px;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:border-color .2s,background .2s;line-height:1;-webkit-tap-highlight-color:transparent}
+.mute-btn:hover{border-color:#fd6f15;background:#fef0e6}
+.mute-btn.muted{opacity:.4}
+.practice-drill-name{font-family:'Montserrat',sans-serif;font-size:26px;font-weight:300;color:#2f354a;margin-bottom:4px}
+.practice-rounds-total{font-size:13px;color:#6e6e73;margin-bottom:24px}
+
+/* BREATH CIRCLE */
+.breath-btn{position:relative;width:210px;height:210px;background:radial-gradient(ellipse at 35% 30%,#FFB347,#2f354a);border:none;border-radius:50%;cursor:pointer;margin:0 auto 20px;flex-shrink:0;padding:0;display:block;-webkit-tap-highlight-color:transparent;transition:background .6s ease,transform .4s ease}
+
+.pulse-ring{display:none}
+.breath-content{position:absolute;inset:0;z-index:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;pointer-events:none}
+.b-phase{font-family:'Montserrat',sans-serif;font-size:19px;font-weight:400;color:white;letter-spacing:.04em}
+.b-num{font-family:'Montserrat',sans-serif;font-size:54px;font-weight:300;color:white;line-height:1}
+.b-unit{font-size:10px;color:rgba(255,255,255,.82);letter-spacing:.14em;text-transform:uppercase}
+
+/* INSTRUCTIONS */
+.instructions-card{background:#e8f2fb;border-radius:var(--radius);padding:14px 16px;margin-bottom:16px;width:100%;text-align:left}
+.instructions-title{font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:#fd6f15;margin-bottom:6px}
+.instructions-text{font-size:13px;color:#2f354a;line-height:1.7;font-weight:300}
+
+/* PROGRESS */
+.timer-bar-wrap{width:100%;height:3px;background:#e2e2e8;border-radius:2px;margin-bottom:16px}
+.timer-bar{height:100%;background:linear-gradient(90deg,#a0a0c0,#fd6f15);border-radius:2px;width:0%;transition:width 1s linear}
+
+/* ROUND DOTS */
+.round-tracker{display:flex;flex-direction:column;align-items:center;gap:10px;margin-bottom:20px;width:100%}
+.round-label{font-size:11px;letter-spacing:.15em;text-transform:uppercase;color:#6e6e73}
+.round-dots{display:flex;flex-wrap:wrap;gap:7px;justify-content:center;max-width:300px}
+.round-dot{width:10px;height:10px;border-radius:50%;background:#e2e2e8;transition:all .3s ease}
+.round-dot.done{background:#fd6f15}
+.round-dot.active{background:#a0a0c0;box-shadow:0 0 0 3px rgba(253,111,21,.3);animation:dotPulse 1s ease-in-out infinite}
+@keyframes dotPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.3)}}
+
+.practice-controls{display:flex;gap:12px;justify-content:center}
+
+/* COMPLETE */
+.complete-wrap{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:14px;padding:40px 0}
+.complete-icon{width:76px;height:76px;border-radius:50%;background:#fef0e6;border:2px solid rgba(95,168,167,.35);display:flex;align-items:center;justify-content:center;font-size:30px;animation:popIn .5s cubic-bezier(.34,1.56,.64,1)}
+@keyframes popIn{from{transform:scale(0);opacity:0}to{transform:scale(1);opacity:1}}
+.complete-title{font-family:'Montserrat',sans-serif;font-size:34px;font-weight:300;color:#2f354a}
+.complete-message{font-size:14px;color:#6e6e73;line-height:1.6;max-width:280px;font-weight:300}
+.complete-actions{display:flex;flex-direction:column;gap:10px;width:100%;margin-top:8px}
+
+/* HISTORY */
+.history-header-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px}
+.history-count{font-size:12px;color:#6e6e73}
+.history-empty{text-align:center;padding:48px 0;color:#6e6e73;font-size:14px;font-weight:300;line-height:1.7}
+.history-empty-icon{font-size:40px;margin-bottom:16px}
+.history-list{display:flex;flex-direction:column;gap:10px}
+.history-entry{background:white;border:1.5px solid #e2e2e8;border-radius:var(--radius);padding:16px 18px}
+.history-entry-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px}
+.history-drill{font-family:'Montserrat',sans-serif;font-size:18px;font-weight:400;color:#2f354a}
+.history-date{font-size:11px;color:#6e6e73}
+.history-tags{display:flex;gap:6px;flex-wrap:wrap}
+.tag{font-size:10px;text-transform:uppercase;letter-spacing:.08em;padding:2px 8px;border-radius:10px;background:#fef0e6;color:#fd6f15}
+.tag.flare-tag{background:#FFEBEE;color:#E53935}
+.tag.moderate-tag{background:#FFF8E1;color:#F9A825}
+.tag.good-tag{background:#F1F8E9;color:#43A047}
+.history-clear-btn{background:none;border:1.5px solid #e2e2e8;border-radius:50px;padding:10px 22px;font-family:'Poppins',sans-serif;font-size:13px;color:#6e6e73;cursor:pointer;margin-top:20px;transition:border-color .2s,color .2s}
+.history-clear-btn:hover{border-color:#fd6f15;color:#fd6f15}
+
+/* REMINDERS */
+.reminder-section{margin-bottom:24px}
+.reminder-section-title{font-family:'Montserrat',sans-serif;font-size:20px;font-weight:400;color:#2f354a;margin-bottom:4px}
+.reminder-section-sub{font-size:13px;color:#6e6e73;margin-bottom:14px;font-weight:300;line-height:1.5}
+.time-input-row{display:flex;align-items:center;gap:12px;margin-bottom:10px}
+.time-input-label{font-size:13px;color:#2f354a;width:80px;flex-shrink:0}
+.time-input{flex:1;border:1.5px solid #e2e2e8;border-radius:12px;padding:12px 14px;font-family:'Poppins',sans-serif;font-size:16px;color:#2f354a;background:white;outline:none;transition:border-color .2s}
+.time-input:focus{border-color:#fd6f15}
+.reminder-result{background:#fef0e6;border-radius:14px;padding:14px 16px;margin-bottom:16px}
+.reminder-result-row{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid rgba(95,168,167,.2)}
+.reminder-result-row:last-child{border-bottom:none}
+.reminder-result-label{font-size:13px;color:#6e6e73}
+.reminder-result-time{font-family:'Montserrat',sans-serif;font-size:20px;color:#2f354a;font-weight:400}
+.reminder-suggestion{font-size:12px;color:#fd6f15}
+.divider{height:1px;background:#e2e2e8;margin:20px 0}
+.save-btn{width:100%;background:#2f354a;color:white;border:none;border-radius:50px;padding:16px;font-family:'Poppins',sans-serif;font-size:15px;cursor:pointer;transition:background .25s;margin-bottom:10px}
+.save-btn:hover{background:#3d4560}
+.save-confirm{display:none;text-align:center;font-size:13px;color:#fd6f15;margin-top:6px}
+.save-confirm.show{display:block}
+
+/* REMINDER BANNER */
+.reminder-banner{display:none;position:fixed;top:0;left:0;right:0;z-index:200;background:#2f354a;color:white;padding:16px 48px 16px 24px;text-align:center;animation:slideDown .4s ease;cursor:pointer}
+.reminder-banner.show{display:block}
+@keyframes slideDown{from{transform:translateY(-100%)}to{transform:translateY(0)}}
+.banner-title{font-family:'Montserrat',sans-serif;font-size:20px;font-weight:400;margin-bottom:2px}
+.banner-sub{font-size:12px;opacity:.85}
+.banner-close{position:absolute;top:50%;right:16px;transform:translateY(-50%);font-size:22px;opacity:.75}
+
+/* ── DATA SCREEN ──────────────────────────────── */
+.data-legend{display:flex;gap:16px;margin-bottom:20px;flex-wrap:wrap}
+.legend-item{display:flex;align-items:center;gap:6px;font-size:12px;color:#6e6e73}
+.legend-dot{width:11px;height:11px;border-radius:50%;flex-shrink:0}
+
+#data-chart-wrap{background:white;border:1.5px solid #e2e2e8;border-radius:20px;padding:20px 16px;margin-bottom:16px;min-height:160px;display:flex;align-items:center;justify-content:center}
+#data-chart{width:100%}
+
+.data-empty{text-align:center;font-size:13px;color:#6e6e73;line-height:1.7;padding:16px 0}
+
+/* Grid rows */
+.chart-row{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.chart-row:last-child{margin-bottom:0}
+.chart-row-label{font-size:11px;color:#6e6e73;width:30px;flex-shrink:0;text-align:right;font-family:'Poppins',sans-serif}
+.chart-dots{display:flex;gap:5px;flex-wrap:wrap;align-items:center;flex:1}
+
+/* Energy dots on chart */
+.chart-dot{width:16px;height:16px;border-radius:50%;flex-shrink:0;transition:transform .15s}
+.chart-dot:hover{transform:scale(1.3)}
+.chart-dot.flare{background:#fd6f15}
+.chart-dot.moderate{background:#f5a623}
+.chart-dot.good{background:#4a9fd4}
+.chart-dot.empty{background:#f5f5f2;border:1.5px dashed #e2e2e8}
+
+/* Week view — day columns */
+.week-grid{width:100%;display:grid;grid-template-columns:repeat(7,1fr);gap:6px;text-align:center}
+.week-col-label{font-size:10px;color:#6e6e73;margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em;font-family:'Poppins',sans-serif}
+.week-col-dots{display:flex;flex-direction:column;align-items:center;gap:5px;min-height:24px}
+
+/* Summary bar */
+.data-summary{display:flex;gap:10px;flex-wrap:wrap}
+.summary-card{flex:1;min-width:80px;background:white;border:1.5px solid #e2e2e8;border-radius:var(--radius);padding:12px 14px;text-align:center}
+.summary-num{font-family:'Montserrat',sans-serif;font-size:26px;font-weight:300;color:#2f354a;line-height:1}
+.summary-label{font-size:10px;color:#6e6e73;text-transform:uppercase;letter-spacing:.08em;margin-top:4px;font-family:'Poppins',sans-serif}
+.summary-dot{width:10px;height:10px;border-radius:50%;display:inline-block;margin-right:4px;vertical-align:middle}
+
+.drill-card-rec{border-color:rgba(253,111,21,.35);background:#fffaf7}
+.rec-badge{display:inline-block;font-size:9px;text-transform:uppercase;letter-spacing:.1em;background:#fd6f15;color:white;border-radius:10px;padding:2px 7px;margin-left:8px;vertical-align:middle;font-family:'Poppins',sans-serif;font-weight:500}
+
+/* ── RESOURCES SCREEN ─────────────────────────────────────────────────── */
+.res-tabs{display:flex;gap:8px;margin-bottom:20px}
+.res-tab{flex:1;background:white;border:1.5px solid #e2e2e8;border-radius:50px;padding:10px 16px;font-family:'Poppins',sans-serif;font-size:13px;color:#6e6e73;cursor:pointer;transition:all .2s;-webkit-tap-highlight-color:transparent}
+.res-tab.active{background:#fd6f15;border-color:#fd6f15;color:white;font-weight:500}
+
+.lib-search-wrap{margin-bottom:16px}
+.lib-search{width:100%;border:1.5px solid #e2e2e8;border-radius:50px;padding:12px 20px;font-family:'Poppins',sans-serif;font-size:13px;color:#2f354a;background:white;outline:none;transition:border-color .2s}
+.lib-search:focus{border-color:#fd6f15}
+
+.lib-cards{display:flex;flex-direction:column;gap:10px;padding-bottom:24px}
+
+.lib-card{background:white;border:1.5px solid #e2e2e8;border-radius:var(--radius);overflow:hidden;transition:border-color .2s}
+.lib-card.open{border-color:#fd6f15}
+.lib-card.hidden{display:none}
+
+.lib-card-header{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;cursor:pointer;-webkit-tap-highlight-color:transparent;gap:12px}
+.lib-card-title{font-family:'Montserrat',sans-serif;font-size:15px;font-weight:500;color:#2f354a;line-height:1.3}
+.lib-chevron{font-size:11px;color:#6e6e73;transition:transform .25s;flex-shrink:0}
+.lib-card.open .lib-chevron{transform:rotate(180deg);color:#fd6f15}
+
+.lib-card-body{display:none;padding:0 20px 20px;border-top:1px solid #f5f5f2}
+.lib-card.open .lib-card-body{display:block}
+
+.lib-desc{font-size:13px;color:#6e6e73;line-height:1.7;margin:14px 0 16px;font-style:italic}
+.lib-section-title{font-size:10px;text-transform:uppercase;letter-spacing:.12em;color:#fd6f15;font-family:'Poppins',sans-serif;font-weight:600;margin-bottom:8px;margin-top:14px}
+.lib-list{font-size:13px;color:#2f354a;line-height:1.8;padding-left:18px}
+.lib-list li{margin-bottom:2px}
+.lib-science{font-size:13px;color:#2f354a;line-height:1.7}
+
+/* LIBRARY CATEGORIES */
+.lib-category{margin-bottom:8px}
+.lib-cat-header{display:flex;align-items:center;gap:14px;padding:14px 0 12px;border-bottom:2px solid #fd6f15;margin-bottom:12px}
+.lib-cat-icon{font-size:26px;line-height:1;flex-shrink:0}
+.lib-cat-title{font-family:'Montserrat',sans-serif;font-size:17px;font-weight:600;color:#2f354a;line-height:1.2}
+.lib-cat-sub{font-size:11px;color:#6e6e73;margin-top:3px;font-family:'Poppins',sans-serif;letter-spacing:.03em}
+
+/* HISTORY & DATA TABS */
+.hd-tabs{display:flex;gap:6px;margin-bottom:20px}
+.hd-tab{flex:1;background:white;border:1.5px solid #e2e2e8;border-radius:50px;padding:10px 8px;font-family:'Poppins',sans-serif;font-size:12px;color:#6e6e73;cursor:pointer;transition:all .2s;-webkit-tap-highlight-color:transparent}
+.hd-tab.active{background:#fd6f15;border-color:#fd6f15;color:white;font-weight:500}
+.flare-dot{background:#FF8A80}
+.moderate-dot{background:#FFD180}
+.good-dot{background:#A5D6A7}
+
+.data-empty-icon{font-size:36px;margin-bottom:12px;display:block}
+.today-label{color:#fd6f15;font-weight:500}
+/* SUGGEST A FEATURE */
+.suggest-card{background:white;border:1.5px solid #e2e2e8;border-radius:20px;padding:24px;margin-bottom:16px;display:flex;gap:16px;align-items:flex-start}
+.suggest-icon{font-size:32px;line-height:1;flex-shrink:0;margin-top:2px}
+.suggest-body{flex:1}
+.suggest-title{font-family:'Montserrat',sans-serif;font-size:16px;font-weight:600;color:#2f354a;margin-bottom:8px}
+.suggest-desc{font-size:13px;color:#6e6e73;line-height:1.7;margin-bottom:14px;font-weight:300}
+.suggest-tags{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:18px}
+.suggest-tag{font-size:10px;text-transform:uppercase;letter-spacing:.08em;padding:3px 10px;border-radius:20px;background:#e8f2fb;color:#2f354a;font-family:'Poppins',sans-serif}
+.suggest-btn{display:flex;align-items:center;justify-content:space-between;background:#fd6f15;color:white;text-decoration:none;border-radius:50px;padding:14px 22px;font-family:'Poppins',sans-serif;font-size:14px;font-weight:500;transition:background .2s;-webkit-tap-highlight-color:transparent}
+.suggest-btn:hover{background:#e05c0e}
+.suggest-arrow{font-size:18px;line-height:1}
+.suggest-privacy{font-size:12px;color:#6e6e73;line-height:1.7;font-style:italic;text-align:center;padding:0 8px}
+
+/* ── AUTH SCREENS ─────────────────────────────────── */
+.auth-wrap{display:flex;flex-direction:column;align-items:center;text-align:center;padding:20px 0}
+.auth-logo{font-size:48px;margin-bottom:16px}
+.auth-title{font-family:'Montserrat',sans-serif;font-size:28px;font-weight:600;color:#2f354a;margin-bottom:6px}
+.auth-subtitle{font-size:14px;color:#6e6e73;margin-bottom:32px;line-height:1.6;font-weight:300}
+.auth-form{width:100%;display:flex;flex-direction:column;gap:12px;margin-bottom:20px}
+.auth-input{width:100%;border:1.5px solid #e2e2e8;border-radius:12px;padding:14px 16px;font-family:'Poppins',sans-serif;font-size:15px;color:#2f354a;background:white;outline:none;transition:border-color .2s}
+.auth-input:focus{border-color:#fd6f15}
+.auth-input::placeholder{color:#6e6e73}
+.auth-btn{width:100%;background:#fd6f15;color:white;border:none;border-radius:50px;padding:16px;font-family:'Poppins',sans-serif;font-size:15px;font-weight:500;cursor:pointer;transition:background .2s;margin-top:4px}
+.auth-btn:hover{background:#e05c0e}
+.auth-btn:disabled{background:#e2e2e8;color:#6e6e73;cursor:not-allowed}
+.auth-divider{display:flex;align-items:center;gap:12px;margin:4px 0}
+.auth-divider-line{flex:1;height:1px;background:#e2e2e8}
+.auth-divider-text{font-size:12px;color:#6e6e73;white-space:nowrap}
+.auth-google-btn{width:100%;background:white;color:#2f354a;border:1.5px solid #e2e2e8;border-radius:50px;padding:14px;font-family:'Poppins',sans-serif;font-size:14px;font-weight:500;cursor:pointer;transition:border-color .2s,background .2s;display:flex;align-items:center;justify-content:center;gap:10px}
+.auth-google-btn:hover{border-color:#fd6f15;background:#fef0e6}
+.auth-google-icon{width:20px;height:20px}
+.auth-switch{font-size:13px;color:#6e6e73;margin-top:8px}
+.auth-switch button{background:none;border:none;color:#fd6f15;cursor:pointer;font-family:'Poppins',sans-serif;font-size:13px;font-weight:500;text-decoration:underline;padding:0}
+.auth-error{background:#FFEBEE;border:1px solid #FF8A80;border-radius:10px;padding:10px 14px;font-size:13px;color:#c62828;text-align:left;display:none}
+.auth-error.show{display:block}
+.auth-loading{display:none;font-size:13px;color:#6e6e73;text-align:center;padding:8px 0}
+.auth-loading.show{display:block}
+
+/* ── PROFILE / HEADER ─────────────────────────────── */
+.app-header-row{display:flex;align-items:center;justify-content:space-between;padding:32px 0 16px}
+.app-logo-wrap{text-align:center;flex:1}
+.profile-btn{width:38px;height:38px;border-radius:50%;background:#2f354a;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;color:white;font-family:'Poppins',sans-serif;font-weight:600;flex-shrink:0;transition:background .2s}
+.profile-btn:hover{background:#fd6f15}
+.profile-spacer{width:38px}
+
+/* ── PROFILE SCREEN ───────────────────────────────── */
+.profile-section{margin-bottom:24px}
+.profile-section-title{font-family:'Montserrat',sans-serif;font-size:16px;font-weight:600;color:#2f354a;margin-bottom:14px;padding-bottom:8px;border-bottom:1px solid #e2e2e8}
+.profile-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #f5f5f2}
+.profile-row:last-child{border-bottom:none}
+.profile-label{font-size:13px;color:#6e6e73}
+.profile-value{font-size:13px;color:#2f354a;font-weight:500;text-align:right}
+.profile-stat{flex:1;background:white;border:1.5px solid #e2e2e8;border-radius:var(--radius);padding:14px;text-align:center}
+.profile-stat-num{font-family:'Montserrat',sans-serif;font-size:28px;font-weight:300;color:#2f354a;line-height:1}
+.profile-stat-label{font-size:10px;color:#6e6e73;text-transform:uppercase;letter-spacing:.08em;margin-top:4px;font-family:'Poppins',sans-serif}
+.profile-stats-row{display:flex;gap:10px;margin-bottom:16px}
+.signout-btn{width:100%;background:transparent;color:#6e6e73;border:1.5px solid #e2e2e8;border-radius:50px;padding:14px;font-family:'Poppins',sans-serif;font-size:14px;cursor:pointer;transition:all .2s;margin-top:8px}
+.signout-btn:hover{border-color:#FF8A80;color:#E53935}
+.privacy-text{font-size:11px;color:#6e6e73;line-height:1.7;text-align:center;padding:0 8px;font-style:italic}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="reminder-banner" id="reminder-banner" onclick="dismissBanner()">
+    <span class="banner-close">×</span>
+    <div class="banner-title" id="banner-title">Time for your breathwork</div>
+    <div class="banner-sub" id="banner-sub"></div>
+  </div>
+
+  <!-- AUTH-AWARE HEADER (shown when logged in) -->
+  <div class="app-header-row" id="app-header" style="display:none">
+    <div class="profile-spacer"></div>
+    <div class="app-logo-wrap">
+      <div class="logo-mark" style="justify-content:center">
+        <div class="logo-icon">
+          <svg viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="18" cy="18" r="16" stroke="#fd6f15" stroke-width="1.2"/>
+            <ellipse cx="18" cy="18" rx="10" ry="10" fill="none" stroke="#fd6f15" stroke-width="1" opacity=".5"/>
+            <circle cx="18" cy="18" r="4" fill="#2f354a" opacity="0.8"/>
+            <path d="M18 6 Q22 12 18 18 Q14 24 18 30" stroke="#fd6f15" stroke-width="0.8" fill="none" opacity="0.6"/>
+            <path d="M6 18 Q12 14 18 18 Q24 22 30 18" stroke="#fd6f15" stroke-width="0.8" fill="none" opacity="0.6"/>
+          </svg>
+        </div>
+        <div class="logo-text">Evolve<span>:Breath</span></div>
+      </div>
+      <div class="tagline">Breathwork for CFS / ME</div>
+    </div>
+    <button class="profile-btn" id="profile-btn" onclick="show('profile')" title="Your profile">?</button>
+  </div>
+
+  <!-- AUTH SCREEN -->
+  <div class="screen active" id="screen-auth">
+    <div class="auth-wrap">
+      <div class="auth-logo">🌿</div>
+      <div class="auth-title">Evolve:Breath</div>
+      <div class="auth-subtitle">Gentle breathwork for CFS/ME.<br>Sign in to track your progress.</div>
+      <div id="auth-signin" style="width:100%">
+        <div class="auth-form">
+          <input class="auth-input" type="email"    id="si-email"    placeholder="Email address" autocomplete="email">
+          <input class="auth-input" type="password" id="si-password" placeholder="Password" autocomplete="current-password">
+          <div class="auth-error" id="si-error"></div>
+          <div class="auth-loading" id="si-loading">Signing in…</div>
+          <button class="auth-btn" onclick="doSignIn()">Sign in</button>
+        </div>
+        <div class="auth-divider"><div class="auth-divider-line"></div><div class="auth-divider-text">or</div><div class="auth-divider-line"></div></div>
+        <button class="auth-google-btn" onclick="doGoogleSignIn()">
+          <svg class="auth-google-icon" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+          Continue with Google
+        </button>
+        <div class="auth-switch">No account? <button onclick="showAuthPanel('signup')">Create one</button></div>
+      </div>
+      <div id="auth-signup" style="display:none;width:100%">
+        <div class="auth-form">
+          <input class="auth-input" type="text"     id="su-name"     placeholder="Your first name" autocomplete="given-name">
+          <input class="auth-input" type="email"    id="su-email"    placeholder="Email address" autocomplete="email">
+          <input class="auth-input" type="password" id="su-password" placeholder="Password (min 6 characters)" autocomplete="new-password">
+          <div class="auth-error" id="su-error"></div>
+          <div class="auth-loading" id="su-loading">Creating account…</div>
+          <button class="auth-btn" onclick="doSignUp()">Create account</button>
+        </div>
+        <div class="auth-divider"><div class="auth-divider-line"></div><div class="auth-divider-text">or</div><div class="auth-divider-line"></div></div>
+        <button class="auth-google-btn" onclick="doGoogleSignIn()">
+          <svg class="auth-google-icon" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+          Continue with Google
+        </button>
+        <div class="auth-switch">Already have an account? <button onclick="showAuthPanel('signin')">Sign in</button></div>
+        <p class="privacy-text" style="margin-top:16px">By creating an account you agree to our <a href="#" onclick="show('privacy')" style="color:#fd6f15">Privacy Policy</a>. Your health data is stored securely and never shared.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- PROFILE SCREEN -->
+  <div class="screen" id="screen-profile">
+    <button class="back-btn" onclick="show('energy')">← Back</button>
+    <div class="section-label">Your account</div>
+    <div class="screen-title" id="profile-name-title">Profile</div>
+    <div class="profile-stats-row">
+      <div class="profile-stat"><div class="profile-stat-num" id="stat-total">0</div><div class="profile-stat-label">Sessions</div></div>
+      <div class="profile-stat"><div class="profile-stat-num" id="stat-streak">0</div><div class="profile-stat-label">Day streak</div></div>
+      <div class="profile-stat"><div class="profile-stat-num" id="stat-this-week">0</div><div class="profile-stat-label">This week</div></div>
+    </div>
+    <div class="profile-section">
+      <div class="profile-section-title">Account</div>
+      <div class="profile-row"><span class="profile-label">Name</span><span class="profile-value" id="profile-display-name">—</span></div>
+      <div class="profile-row"><span class="profile-label">Email</span><span class="profile-value" id="profile-email">—</span></div>
+      <div class="profile-row"><span class="profile-label">Member since</span><span class="profile-value" id="profile-since">—</span></div>
+    </div>
+    <div class="profile-section">
+      <div class="profile-section-title">Reminders</div>
+      <div class="profile-row"><span class="profile-label">Morning</span><span class="profile-value" id="profile-morning">Not set</span></div>
+      <div class="profile-row"><span class="profile-label">Evening</span><span class="profile-value" id="profile-evening">Not set</span></div>
+    </div>
+    <button class="signout-btn" onclick="doSignOut()">Sign out</button>
+  </div>
+
+  <!-- PRIVACY POLICY SCREEN -->
+  <div class="screen" id="screen-privacy">
+    <button class="back-btn" onclick="show('auth')">← Back</button>
+    <div class="section-label">Legal</div>
+    <div class="screen-title">Privacy Policy</div>
+    <div style="font-size:13px;color:#6e6e73;line-height:1.8;font-weight:300">
+      <p style="margin-bottom:12px"><strong style="color:#2f354a">Last updated: 2025</strong></p>
+      <p style="margin-bottom:12px">Evolve:Breath is a breathwork application designed for people with CFS/ME. This policy explains how we collect, use, and protect your data.</p>
+      <p style="margin-bottom:8px"><strong style="color:#2f354a">What we collect</strong></p>
+      <p style="margin-bottom:12px">Name, email address, session history (drill name, energy level, goal, duration, timestamp), and reminder preferences. No sensitive medical data beyond what you voluntarily enter.</p>
+      <p style="margin-bottom:8px"><strong style="color:#2f354a">How we use it</strong></p>
+      <p style="margin-bottom:12px">To provide personalised session tracking, progress over time, and reminders. We do not sell, share, or use your data for advertising.</p>
+      <p style="margin-bottom:8px"><strong style="color:#2f354a">Data storage</strong></p>
+      <p style="margin-bottom:12px">Data is stored securely via Google Firebase (Firestore), protected by Google's security infrastructure.</p>
+      <p style="margin-bottom:8px"><strong style="color:#2f354a">Your rights</strong></p>
+      <p style="margin-bottom:12px">You can request deletion of your account and all associated data at any time. Under GDPR you have the right to access, correct, or erase your data.</p>
+      <p style="margin-bottom:8px"><strong style="color:#2f354a">Contact</strong></p>
+      <p>For privacy queries use the Suggest a Feature form and mark your message as a privacy request.</p>
+    </div>
+  </div>
+
+  <!-- SCREEN 1: Energy -->
+  <div class="screen" id="screen-energy">
+    <!-- Menu always shown at top of home screen -->
+    <div class="menu-wrap">
+      <button class="menu-btn" id="menu-btn" onclick="toggleMenu()">
+        <span class="menu-btn-left"><span class="menu-btn-icon">☰</span> Menu</span>
+        <span class="menu-chevron">▼</span>
+      </button>
+      <div class="menu-dropdown" id="menu-dropdown">
+        <button class="menu-item" onclick="menuGo(showHistory)"><span class="menu-item-icon">📊</span> History &amp; Data</button>
+        <button class="menu-item" onclick="menuGo(showReminders)"><span class="menu-item-icon">🔔</span> Reminders</button>
+        <button class="menu-item" onclick="menuGo(showResources)"><span class="menu-item-icon">📚</span> Resources</button>
+        <button class="menu-item" onclick="menuGo(showSuggest)"><span class="menu-item-icon">💡</span> Suggest a Feature</button>
+      </div>
+    </div>
+    <div class="section-label">Step 1 of 3</div>
+    <div class="screen-title">How is your energy today?</div>
+    <div class="screen-subtitle">Your answer shapes which practices are shown. There are no wrong choices — only honest ones.</div>
+    <div class="energy-cards">
+      <div class="energy-card flare" onclick="selectEnergy('flare')">
+        <div class="energy-row"><span class="energy-dot"></span><span class="energy-name">Flare Day</span></div>
+        <div class="energy-desc">Symptoms heightened. Low capacity. Rest is the priority — these practices support without adding strain.</div>
+        <div class="energy-durations"><span class="duration-pill">1 min</span><span class="duration-pill">2 min</span></div>
+      </div>
+      <div class="energy-card moderate" onclick="selectEnergy('moderate')">
+        <div class="energy-row"><span class="energy-dot"></span><span class="energy-name">Moderate Day</span></div>
+        <div class="energy-desc">Some capacity available. Gentle engagement is possible with care and self-monitoring.</div>
+        <div class="energy-durations"><span class="duration-pill">1–2 min</span><span class="duration-pill">5 min</span><span class="duration-pill">10 min optional</span></div>
+      </div>
+      <div class="energy-card good" onclick="selectEnergy('good')">
+        <div class="energy-row"><span class="energy-dot"></span><span class="energy-name">Good Day</span></div>
+        <div class="energy-desc">Feeling relatively well. Full range of practices available — still move gently and stop if needed.</div>
+        <div class="energy-durations"><span class="duration-pill">1–2 min</span><span class="duration-pill">5 min</span><span class="duration-pill">10 min</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCREEN 2: Goal -->
+  <div class="screen" id="screen-goal">
+    <button class="back-btn" onclick="goBack('energy')">← Back</button>
+    <div class="section-label">Step 2 of 3</div>
+    <div class="screen-title">What do you need right now?</div>
+    <div class="screen-subtitle">Choose the intention that best matches this moment.</div>
+    <div class="goal-grid" id="goal-grid"></div>
+  </div>
+
+  <!-- SCREEN 3: Time -->
+  <div class="screen" id="screen-time">
+    <button class="back-btn" onclick="goBack('goal')">← Back</button>
+    <div id="breadcrumb-time" class="breadcrumb"></div>
+    <div class="screen-title">Choose your duration</div>
+    <div class="screen-subtitle" id="time-subtitle"></div>
+    <div class="notice" id="flare-notice" style="display:none">🌿 On a flare day, even 1 minute of gentle breathwork can create meaningful regulation. Less is enough.</div>
+    <div class="time-options" id="time-options"></div>
+  </div>
+
+  <!-- SCREEN 4: Drills -->
+  <div class="screen" id="screen-drills">
+    <button class="back-btn" onclick="goBack('time')">← Back</button>
+    <div id="breadcrumb-drills" class="breadcrumb"></div>
+    <div class="screen-title">Choose your practice</div>
+    <div class="drill-list" id="drill-list"></div>
+  </div>
+
+  <!-- SCREEN 5: Practice -->
+  <div class="screen" id="screen-practice">
+    <button class="back-btn" onclick="stopPractice()">← End Practice</button>
+    <div class="practice-wrap">
+      <div class="practice-top-row">
+        <div class="paused-badge" id="paused-badge">Paused</div>
+        <button class="mute-btn" id="mute-btn" onclick="toggleMute()" title="Toggle sound">🔔</button>
+      </div>
+      <div class="practice-drill-name" id="practice-drill-name"></div>
+      <div class="practice-rounds-total" id="practice-rounds-total"></div>
+      <button class="breath-btn" id="breath-btn" onclick="circleTapped()">
+        <span class="pulse-ring"></span>
+        <span class="pulse-ring"></span>
+        <span class="pulse-ring"></span>
+        <span class="breath-content">
+          <span class="b-phase" id="b-phase">Begin</span>
+          <span class="b-num"   id="b-num"></span>
+          <span class="b-unit"  id="b-unit">Tap to start</span>
+        </span>
+      </button>
+      <div class="instructions-card" id="instructions-card">
+        <div class="instructions-title">How to breathe</div>
+        <div class="instructions-text" id="instructions-text"></div>
+      </div>
+      <div class="timer-bar-wrap"><div class="timer-bar" id="timer-bar"></div></div>
+      <div class="round-tracker">
+        <div class="round-label">Rounds</div>
+        <div class="round-dots" id="round-dots"></div>
+      </div>
+      <div class="practice-controls">
+        <button class="btn-secondary" id="pause-btn" onclick="togglePause()" style="display:none">Pause</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCREEN 6: Complete -->
+  <div class="screen" id="screen-complete">
+    <div class="complete-wrap">
+      <div class="complete-icon">🌿</div>
+      <div class="complete-title">Well done.</div>
+      <div class="complete-message" id="complete-message">You showed up for yourself today.</div>
+      <div class="complete-actions">
+        <button class="btn-primary"   onclick="goHome()">Return Home</button>
+        <button class="btn-secondary" onclick="repeatDrill()">Repeat Practice</button>
+        <button class="text-btn"      onclick="showHistory()">📋 View session history</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCREEN 7: History & Data -->
+  <div class="screen" id="screen-history">
+    <button class="back-btn" onclick="show('energy')">← Back</button>
+    <div class="section-label">Your progress</div>
+    <div class="screen-title">History &amp; Data</div>
+
+    <div class="hd-tabs">
+      <button class="hd-tab active" id="hd-tab-sessions" onclick="switchHDTab('sessions')">Sessions</button>
+      <button class="hd-tab" id="hd-tab-week"     onclick="switchHDTab('week')">This Week</button>
+      <button class="hd-tab" id="hd-tab-month"    onclick="switchHDTab('month')">This Month</button>
+    </div>
+
+    <!-- Sessions list -->
+    <div id="hd-sessions">
+      <div class="history-header-row">
+        <span class="history-count" id="history-count"></span>
+      </div>
+      <div id="history-body"></div>
+    </div>
+
+    <!-- Week chart -->
+    <div id="hd-week" style="display:none">
+      <div class="data-legend">
+        <span class="legend-item"><span class="legend-dot flare-dot"></span>Flare</span>
+        <span class="legend-item"><span class="legend-dot moderate-dot"></span>Moderate</span>
+        <span class="legend-item"><span class="legend-dot good-dot"></span>Good</span>
+      </div>
+      <div id="data-chart-week" class="data-chart-wrap"></div>
+      <div id="data-empty-week" class="data-empty" style="display:none"><div class="data-empty-icon">🌿</div>No sessions this week yet.</div>
+      <div class="data-summary" id="data-summary-week"></div>
+    </div>
+
+    <!-- Month chart -->
+    <div id="hd-month" style="display:none">
+      <div class="data-legend">
+        <span class="legend-item"><span class="legend-dot flare-dot"></span>Flare</span>
+        <span class="legend-item"><span class="legend-dot moderate-dot"></span>Moderate</span>
+        <span class="legend-item"><span class="legend-dot good-dot"></span>Good</span>
+      </div>
+      <div id="data-chart-month" class="data-chart-wrap"></div>
+      <div id="data-empty-month" class="data-empty" style="display:none"><div class="data-empty-icon">🌿</div>No sessions this month yet.</div>
+      <div class="data-summary" id="data-summary-month"></div>
+    </div>
+  </div>
+  <!-- SCREEN 8: Reminders -->
+  <div class="screen" id="screen-reminders">
+    <button class="back-btn" onclick="show('energy')">← Back</button>
+    <div class="section-label">Daily practice</div>
+    <div class="screen-title">Reminders</div>
+    <div class="screen-subtitle">Set your wake and sleep times and we'll calculate exactly when to do your breathwork.</div>
+    <div class="notice-warning">ⓘ Reminders only appear while the app is open. Use the times shown to set alarms in your phone's clock app for reliable daily reminders.</div>
+    <div class="reminder-section">
+      <div class="reminder-section-title">🌅 Morning</div>
+      <div class="reminder-section-sub">Your morning reminder fires 30 minutes after you wake — time to settle before you begin.</div>
+      <div class="time-input-row">
+        <span class="time-input-label">Wake time</span>
+        <input class="time-input" type="time" id="wake-input" value="07:00" onchange="updateReminders()">
+      </div>
+      <div class="reminder-result" id="wake-result" style="display:none">
+        <div class="reminder-result-row"><span class="reminder-result-label">Wake time</span><span class="reminder-result-time" id="wake-display">—</span></div>
+        <div class="reminder-result-row"><span class="reminder-result-label">Breathwork reminder</span><span class="reminder-result-time" id="morning-display">—</span></div>
+        <div class="reminder-result-row"><span class="reminder-result-label">Suggested practice</span><span class="reminder-suggestion">Down-Regulation or Quick Rebalance</span></div>
+      </div>
+    </div>
+    <div class="divider"></div>
+    <div class="reminder-section">
+      <div class="reminder-section-title">🌙 Evening</div>
+      <div class="reminder-section-sub">Your evening reminder fires 15 minutes before your target sleep time — the ideal wind-down window.</div>
+      <div class="time-input-row">
+        <span class="time-input-label">Sleep time</span>
+        <input class="time-input" type="time" id="sleep-input" value="22:30" onchange="updateReminders()">
+      </div>
+      <div class="reminder-result" id="sleep-result" style="display:none">
+        <div class="reminder-result-row"><span class="reminder-result-label">Target sleep time</span><span class="reminder-result-time" id="sleep-display">—</span></div>
+        <div class="reminder-result-row"><span class="reminder-result-label">Breathwork reminder</span><span class="reminder-result-time" id="evening-display">—</span></div>
+        <div class="reminder-result-row"><span class="reminder-result-label">Suggested practice</span><span class="reminder-suggestion">Sleep / Wind-Down</span></div>
+      </div>
+    </div>
+    <button class="save-btn" onclick="saveReminders()">Save reminder times</button>
+    <div class="save-confirm" id="save-confirm">✓ Saved. Set these times as alarms in your phone's clock app.</div>
+  </div>
+
+  <!-- SCREEN 10: Resources -->
+  <div class="screen" id="screen-resources">
+    <button class="back-btn" onclick="show('energy')">← Back</button>
+    <div class="section-label">Knowledge base</div>
+    <div class="screen-title">Resources</div>
+    <div class="screen-subtitle">Everything you need to understand your breathwork practice.</div>
+
+    <div class="res-tabs">
+      <button class="res-tab active" id="res-tab-library" onclick="switchResTab('library')">Breathwork Library</button>
+    </div>
+
+    <div id="res-library">
+      <div class="lib-search-wrap">
+        <input class="lib-search" type="text" placeholder="Search drills…" id="lib-search" oninput="filterLibrary()">
+      </div>
+      <div class="lib-cards" id="lib-cards">
+
+        <div class="lib-category">
+          <div class="lib-cat-header"><span class="lib-cat-icon">🌊</span><div><div class="lib-cat-title">Down-Regulation</div><div class="lib-cat-sub">Calming the nervous system</div></div></div>
+          <div class="lib-card" id="lib-Diaphragmatic_4_6">
+            <div class="lib-card-header" onclick="toggleLibCard(this)">
+              <div class="lib-card-title">Diaphragmatic 4/6 Breathing</div><span class="lib-chevron">▼</span>
+            </div>
+            <div class="lib-card-body">
+              <p class="lib-desc">A slow, controlled breathing pattern that emphasises a longer exhale to shift the body into a calmer, recovery-focused state.</p>
+              <div class="lib-section-title">How to do it</div>
+              <ul class="lib-list"><li>Inhale through the nose for 4 seconds</li><li>Exhale gently for 6 seconds</li><li>Belly expands on inhale, ribs soften on exhale</li><li>Keep shoulders relaxed and jaw soft</li></ul>
+              <div class="lib-section-title">The science</div>
+              <p class="lib-science">The diaphragm is directly connected to the vagus nerve. A longer exhale increases vagal activity, slowing heart rate and reducing sympathetic drive. Slow breathing reduces chemoreceptor sensitivity and improves ventilation efficiency without increasing metabolic demand — ideal for low-energy states.</p>
+              <div class="lib-section-title">Why it's prescribed</div>
+              <ul class="lib-list"><li>Helps regulate autonomic swings common in CFS/ME</li><li>Reduces tension and improves pacing</li><li>Supports recovery after exertion</li><li>Very low cognitive and physical load</li></ul>
+            </div>
+          </div>
+          <div class="lib-card" id="lib-Humming_Breath">
+            <div class="lib-card-header" onclick="toggleLibCard(this)">
+              <div class="lib-card-title">Humming Breath</div><span class="lib-chevron">▼</span>
+            </div>
+            <div class="lib-card-body">
+              <p class="lib-desc">A vibratory exhale that stimulates the vagus nerve and promotes relaxation.</p>
+              <div class="lib-section-title">How to do it</div>
+              <ul class="lib-list"><li>Inhale softly</li><li>Exhale with a gentle "mmm" hum</li><li>Keep the jaw loose and lips lightly closed</li><li>Feel vibration in the face, throat, and chest</li></ul>
+              <div class="lib-section-title">The science</div>
+              <p class="lib-science">Humming increases nitric oxide production in the nasal passages, improving airflow and oxygen uptake. Vibrations stimulate mechanoreceptors connected to the vagus nerve, reducing amygdala activity and increasing parasympathetic tone.</p>
+              <div class="lib-section-title">Why it's prescribed</div>
+              <ul class="lib-list"><li>Excellent for down-regulation after exertion</li><li>Helps with sensory overload and emotional tension</li><li>Supports sleep and PEM recovery</li></ul>
+            </div>
+          </div>
+          <div class="lib-card" id="lib-3_5_Downshift">
+            <div class="lib-card-header" onclick="toggleLibCard(this)">
+              <div class="lib-card-title">3/5 Downshift Breath</div><span class="lib-chevron">▼</span>
+            </div>
+            <div class="lib-card-body">
+              <p class="lib-desc">A quick, accessible calming breath used to 'shift down' the nervous system.</p>
+              <div class="lib-section-title">How to do it</div>
+              <ul class="lib-list"><li>Inhale for 3 seconds</li><li>Exhale for 5 seconds</li><li>Keep breath soft and effortless</li></ul>
+              <div class="lib-section-title">The science</div>
+              <p class="lib-science">Shorter inhale and longer exhale reduces sympathetic firing and helps regulate baroreflex sensitivity, stabilising blood pressure. Useful for rapid autonomic resets without fatigue.</p>
+              <div class="lib-section-title">Why it's prescribed</div>
+              <ul class="lib-list"><li>Perfect between tasks or transitions</li><li>Helps avoid autonomic spikes</li><li>Very low effort for CFS/ME</li></ul>
+            </div>
+          </div>
+          <div class="lib-card" id="lib-Soft_Sigh_Exhale">
+            <div class="lib-card-header" onclick="toggleLibCard(this)">
+              <div class="lib-card-title">Soft Sigh Exhale</div><span class="lib-chevron">▼</span>
+            </div>
+            <div class="lib-card-body">
+              <p class="lib-desc">A natural tension-release breath that resets the breathing rhythm.</p>
+              <div class="lib-section-title">How to do it</div>
+              <ul class="lib-list"><li>Inhale normally</li><li>Exhale with a soft sigh</li><li>Let shoulders drop naturally</li></ul>
+              <div class="lib-section-title">The science</div>
+              <p class="lib-science">Sighing resets the pre-Bötzinger complex, the brainstem's breathing rhythm generator. Reduces upper-trap hypertonicity via reflex inhibition and helps release chronic bracing patterns in the neck and shoulders.</p>
+              <div class="lib-section-title">Why it's prescribed</div>
+              <ul class="lib-list"><li>Ideal for desk-based tension</li><li>Helps reduce shoulder/neck guarding</li><li>Supports emotional regulation</li></ul>
+            </div>
+          </div>
+          <div class="lib-card" id="lib-Coherence_Breathing">
+            <div class="lib-card-header" onclick="toggleLibCard(this)">
+              <div class="lib-card-title">Coherence Breathing (5/5)</div><span class="lib-chevron">▼</span>
+            </div>
+            <div class="lib-card-body">
+              <p class="lib-desc">Breathing at ~6 breaths/min to synchronise heart and breath rhythms.</p>
+              <div class="lib-section-title">How to do it</div>
+              <ul class="lib-list"><li>Inhale for 5 seconds</li><li>Exhale for 5 seconds</li><li>Smooth, even rhythm</li></ul>
+              <div class="lib-section-title">The science</div>
+              <p class="lib-science">Creates cardiorespiratory coherence — heart rate and breath rhythm align. Improves HRV, a marker of autonomic flexibility and resilience. Reduces activation of the HPA axis (stress system) and enhances cognitive clarity and emotional stability.</p>
+              <div class="lib-section-title">Why it's prescribed</div>
+              <ul class="lib-list"><li>Helps stabilise autonomic swings</li><li>Supports pacing and emotional regulation</li><li>Great before strength sessions</li></ul>
+            </div>
+          </div>
+          <div class="lib-card" id="lib-Resonance_Breathing">
+            <div class="lib-card-header" onclick="toggleLibCard(this)">
+              <div class="lib-card-title">Resonance Breathing (5.5/5.5)</div><span class="lib-chevron">▼</span>
+            </div>
+            <div class="lib-card-body">
+              <p class="lib-desc">A precise breathing rate that optimises baroreflex function and HRV.</p>
+              <div class="lib-section-title">How to do it</div>
+              <ul class="lib-list"><li>Inhale for 5.5 seconds</li><li>Exhale for 5.5 seconds</li><li>Maintain nasal breathing</li></ul>
+              <div class="lib-section-title">The science</div>
+              <p class="lib-science">Resonance frequency breathing maximises baroreflex gain, stabilising blood pressure. Reduces orthostatic intolerance symptoms and produces the strongest improvements in HRV of any breathing pattern.</p>
+              <div class="lib-section-title">Why it's prescribed</div>
+              <ul class="lib-list"><li>Ideal for clients with dizziness or autonomic instability</li><li>Supports recovery after exertion</li></ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="lib-category">
+          <div class="lib-cat-header"><span class="lib-cat-icon">🧠</span><div><div class="lib-cat-title">Cognitive Calming & Focus</div><div class="lib-cat-sub">Settling the mind and sharpening attention</div></div></div>
+          <div class="lib-card" id="lib-Normalise_Breath">
+            <div class="lib-card-header" onclick="toggleLibCard(this)">
+              <div class="lib-card-title">Normalise Breath</div><span class="lib-chevron">▼</span>
+            </div>
+            <div class="lib-card-body">
+              <p class="lib-desc">Returning to natural breathing after structured drills.</p>
+              <div class="lib-section-title">How to do it</div>
+              <ul class="lib-list"><li>Drop counting</li><li>Let breath settle</li><li>No effort</li></ul>
+              <div class="lib-section-title">The science</div>
+              <p class="lib-science">Prevents over-regulation and supports interoceptive awareness. Helps integrate breathwork into daily life.</p>
+              <div class="lib-section-title">Why it's prescribed</div>
+              <ul class="lib-list"><li>Helps avoid breathwork fatigue</li><li>Supports pacing</li></ul>
+            </div>
+          </div>
+          <div class="lib-card" id="lib-Micro_Breath_Holds">
+            <div class="lib-card-header" onclick="toggleLibCard(this)">
+              <div class="lib-card-title">Micro Breath Holds (1–2 sec)</div><span class="lib-chevron">▼</span>
+            </div>
+            <div class="lib-card-body">
+              <p class="lib-desc">Tiny breath holds to improve CO₂ tolerance and reduce breathlessness.</p>
+              <div class="lib-section-title">How to do it</div>
+              <ul class="lib-list"><li>Exhale</li><li>Hold 1–2 seconds</li><li>Inhale gently</li></ul>
+              <div class="lib-section-title">The science</div>
+              <p class="lib-science">Increases tolerance to rising CO₂, reduces breathlessness, and helps stabilise breathing patterns.</p>
+              <div class="lib-section-title">Why it's prescribed</div>
+              <ul class="lib-list"><li>Useful for clients who over-breathe</li><li>Only used if tolerated</li></ul>
+            </div>
+          </div>
+          <div class="lib-card" id="lib-Box_Breathing">
+            <div class="lib-card-header" onclick="toggleLibCard(this)">
+              <div class="lib-card-title">Box Breathing (4-4-4-4)</div><span class="lib-chevron">▼</span>
+            </div>
+            <div class="lib-card-body">
+              <p class="lib-desc">A structured breath for focus and calm.</p>
+              <div class="lib-section-title">How to do it</div>
+              <ul class="lib-list"><li>Inhale 4</li><li>Hold 4</li><li>Exhale 4</li><li>Hold 4</li></ul>
+              <div class="lib-section-title">The science</div>
+              <p class="lib-science">Breath holds increase CO₂ tolerance. Reduces activity in the locus coeruleus, the brain's arousal centre, and improves cognitive control and emotional stability.</p>
+              <div class="lib-section-title">Why it's prescribed</div>
+              <ul class="lib-list"><li>Great for work stress</li><li>Helps regulate pacing</li></ul>
+            </div>
+          </div>
+          <div class="lib-card" id="lib-4_Breath_Box">
+            <div class="lib-card-header" onclick="toggleLibCard(this)">
+              <div class="lib-card-title">4-Breath Box</div><span class="lib-chevron">▼</span>
+            </div>
+            <div class="lib-card-body">
+              <p class="lib-desc">A simplified grounding pattern.</p>
+              <div class="lib-section-title">How to do it</div>
+              <ul class="lib-list"><li>Inhale 4</li><li>Exhale 4</li><li>Repeat 4 times</li></ul>
+              <div class="lib-section-title">The science</div>
+              <p class="lib-science">Reduces sympathetic activation and helps regulate breath rhythm. Low cognitive load makes it ideal for high-overwhelm moments.</p>
+              <div class="lib-section-title">Why it's prescribed</div>
+              <ul class="lib-list"><li>Ideal for overwhelm</li><li>Great for transitions</li></ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="lib-category">
+          <div class="lib-cat-header"><span class="lib-cat-icon">⚡</span><div><div class="lib-cat-title">Quick Rebalance</div><div class="lib-cat-sub">Fast nervous system rebalancing</div></div></div>
+          <div class="lib-card" id="lib-3_3_6_Reset">
+            <div class="lib-card-header" onclick="toggleLibCard(this)">
+              <div class="lib-card-title">3-3-6 Reset</div><span class="lib-chevron">▼</span>
+            </div>
+            <div class="lib-card-body">
+              <p class="lib-desc">A fast nervous-system reset.</p>
+              <div class="lib-section-title">How to do it</div>
+              <ul class="lib-list"><li>Inhale 3</li><li>Hold 3</li><li>Exhale 6</li></ul>
+              <div class="lib-section-title">The science</div>
+              <p class="lib-science">Short hold increases CO₂ slightly for a calming effect. Long exhale activates parasympathetic pathways and helps regulate autonomic spikes.</p>
+              <div class="lib-section-title">Why it's prescribed</div>
+              <ul class="lib-list"><li>Great between tasks</li><li>Helps reduce stress spikes</li></ul>
+            </div>
+          </div>
+          <div class="lib-card" id="lib-One_Minute_Calm">
+            <div class="lib-card-header" onclick="toggleLibCard(this)">
+              <div class="lib-card-title">One-Minute Calm</div><span class="lib-chevron">▼</span>
+            </div>
+            <div class="lib-card-body">
+              <p class="lib-desc">A short, accessible calming drill.</p>
+              <div class="lib-section-title">How to do it</div>
+              <ul class="lib-list"><li>6 slow breaths</li><li>Relax shoulders and jaw</li></ul>
+              <div class="lib-section-title">The science</div>
+              <p class="lib-science">6 breaths per minute is optimal for vagal activation, reducing heart rate quickly and helping stabilise autonomic state.</p>
+              <div class="lib-section-title">Why it's prescribed</div>
+              <ul class="lib-list"><li>Perfect before movement</li><li>Helps avoid autonomic spikes</li></ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="lib-category">
+          <div class="lib-cat-header"><span class="lib-cat-icon">🌙</span><div><div class="lib-cat-title">Sleep & Wind-Down</div><div class="lib-cat-sub">Preparing the body and mind for rest</div></div></div>
+          <div class="lib-card" id="lib-Modified_4_7_8">
+            <div class="lib-card-header" onclick="toggleLibCard(this)">
+              <div class="lib-card-title">Modified 4/7/8 (CFS-Safe)</div><span class="lib-chevron">▼</span>
+            </div>
+            <div class="lib-card-body">
+              <p class="lib-desc">A sleep-focused breath pattern with shortened holds to avoid dizziness.</p>
+              <div class="lib-section-title">How to do it</div>
+              <ul class="lib-list"><li>Inhale 4</li><li>Hold 2–3</li><li>Exhale 6–8</li></ul>
+              <div class="lib-section-title">The science</div>
+              <p class="lib-science">Breath holds increase CO₂ tolerance, reducing hyperventilation tendencies. Long exhale activates parasympathetic pathways. Modified to avoid dizziness in low-energy states.</p>
+              <div class="lib-section-title">Why it's prescribed</div>
+              <ul class="lib-list"><li>Helps sleep onset</li><li>Supports evening down-regulation</li></ul>
+            </div>
+          </div>
+          <div class="lib-card" id="lib-Extended_Exhale">
+            <div class="lib-card-header" onclick="toggleLibCard(this)">
+              <div class="lib-card-title">Extended Exhale Breathing</div><span class="lib-chevron">▼</span>
+            </div>
+            <div class="lib-card-body">
+              <p class="lib-desc">A sleep-focused breath pattern.</p>
+              <div class="lib-section-title">How to do it</div>
+              <ul class="lib-list"><li>Inhale 4</li><li>Exhale 8</li></ul>
+              <div class="lib-section-title">The science</div>
+              <p class="lib-science">Long exhale increases parasympathetic dominance, reduces cortical arousal, and helps transition into sleep.</p>
+              <div class="lib-section-title">Why it's prescribed</div>
+              <ul class="lib-list"><li>Helps sleep onset</li><li>Ideal for evening routine</li></ul>
+            </div>
+          </div>
+          <div class="lib-card" id="lib-Humming_Body_Scan">
+            <div class="lib-card-header" onclick="toggleLibCard(this)">
+              <div class="lib-card-title">Humming + Body Scan</div><span class="lib-chevron">▼</span>
+            </div>
+            <div class="lib-card-body">
+              <p class="lib-desc">Combines vagal stimulation with somatic awareness.</p>
+              <div class="lib-section-title">How to do it</div>
+              <ul class="lib-list"><li>Hum on exhale</li><li>Scan body from feet to face</li></ul>
+              <div class="lib-section-title">The science</div>
+              <p class="lib-science">Vibration stimulates the vagus nerve while body scanning reduces somatic tension, helping shift into a parasympathetic state.</p>
+              <div class="lib-section-title">Why it's prescribed</div>
+              <ul class="lib-list"><li>Excellent for sleep</li><li>Helps reduce full-body tension</li></ul>
+            </div>
+          </div>
+          <div class="lib-card" id="lib-Dirga_3_Part">
+            <div class="lib-card-header" onclick="toggleLibCard(this)">
+              <div class="lib-card-title">3-Part Breath (Dirga)</div><span class="lib-chevron">▼</span>
+            </div>
+            <div class="lib-card-body">
+              <p class="lib-desc">A layered breath expanding belly → ribs → chest.</p>
+              <div class="lib-section-title">How to do it</div>
+              <ul class="lib-list"><li>Inhale belly → ribs → chest</li><li>Exhale chest → ribs → belly</li></ul>
+              <div class="lib-section-title">The science</div>
+              <p class="lib-science">Improves diaphragm excursion and enhances rib mobility. Reduces anxiety and emotional load.</p>
+              <div class="lib-section-title">Why it's prescribed</div>
+              <ul class="lib-list"><li>Great for emotional regulation</li><li>Helps with breath awareness</li></ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="lib-category">
+          <div class="lib-cat-header"><span class="lib-cat-icon">🌱</span><div><div class="lib-cat-title">Movement & Exercise</div><div class="lib-cat-sub">Breathing during and around physical activity</div></div></div>
+          <div class="lib-card" id="lib-Exhale_on_Effort">
+            <div class="lib-card-header" onclick="toggleLibCard(this)">
+              <div class="lib-card-title">Exhale on Effort</div><span class="lib-chevron">▼</span>
+            </div>
+            <div class="lib-card-body">
+              <p class="lib-desc">Breathing pattern for strength movements.</p>
+              <div class="lib-section-title">How to do it</div>
+              <ul class="lib-list"><li>Exhale during lift</li><li>Inhale during return</li></ul>
+              <div class="lib-section-title">The science</div>
+              <p class="lib-science">Reduces intra-abdominal pressure spikes and prevents breath-holding (Valsalva). Improves stability and reduces dizziness.</p>
+              <div class="lib-section-title">Why it's prescribed</div>
+              <ul class="lib-list"><li>Safe for CFS/ME</li><li>Supports pacing during strength work</li></ul>
+            </div>
+          </div>
+          <div class="lib-card" id="lib-Nasal_Walking">
+            <div class="lib-card-header" onclick="toggleLibCard(this)">
+              <div class="lib-card-title">Nasal Breathing on Walking Pad</div><span class="lib-chevron">▼</span>
+            </div>
+            <div class="lib-card-body">
+              <p class="lib-desc">Low-effort nasal breathing during walking.</p>
+              <div class="lib-section-title">How to do it</div>
+              <ul class="lib-list"><li>Mouth closed</li><li>Slow nasal breaths</li></ul>
+              <div class="lib-section-title">The science</div>
+              <p class="lib-science">Improves oxygen uptake, reduces hyperventilation, and supports aerobic efficiency.</p>
+              <div class="lib-section-title">Why it's prescribed</div>
+              <ul class="lib-list"><li>Keeps walking low-intensity</li><li>Helps avoid PEM</li></ul>
+            </div>
+          </div>
+          <div class="lib-card" id="lib-Breath_Paced_Mobility">
+            <div class="lib-card-header" onclick="toggleLibCard(this)">
+              <div class="lib-card-title">Breath-Paced Mobility</div><span class="lib-chevron">▼</span>
+            </div>
+            <div class="lib-card-body">
+              <p class="lib-desc">Using breath to guide movement.</p>
+              <div class="lib-section-title">How to do it</div>
+              <ul class="lib-list"><li>Inhale to open</li><li>Exhale to fold</li></ul>
+              <div class="lib-section-title">The science</div>
+              <p class="lib-science">Breath-movement coupling reduces muscle tension, improves motor control, and enhances parasympathetic activation.</p>
+              <div class="lib-section-title">Why it's prescribed</div>
+              <ul class="lib-list"><li>Supports mobility without fatigue</li><li>Helps regulate pacing</li></ul>
+            </div>
+          </div>
+          <div class="lib-card" id="lib-Nasal_Low_Volume">
+            <div class="lib-card-header" onclick="toggleLibCard(this)">
+              <div class="lib-card-title">Nasal Low-Volume Breathing</div><span class="lib-chevron">▼</span>
+            </div>
+            <div class="lib-card-body">
+              <p class="lib-desc">Quiet, slow nasal breathing that reduces over-breathing.</p>
+              <div class="lib-section-title">How to do it</div>
+              <ul class="lib-list"><li>Mouth closed</li><li>Gentle nasal inhale/exhale</li><li>Keep breath small and quiet</li></ul>
+              <div class="lib-section-title">The science</div>
+              <p class="lib-science">Nasal breathing increases nitric oxide, improving oxygen uptake. Reduces respiratory alkalosis caused by over-breathing and supports efficient gas exchange.</p>
+              <div class="lib-section-title">Why it's prescribed</div>
+              <ul class="lib-list"><li>Ideal during walking pad</li><li>Helps regulate breathing during movement</li></ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="lib-category">
+          <div class="lib-cat-header"><span class="lib-cat-icon">🫁</span><div><div class="lib-cat-title">Structural & Postural Breathing</div><div class="lib-cat-sub">Improving mechanics and rib mobility</div></div></div>
+          <div class="lib-card" id="lib-Lateral_Rib">
+            <div class="lib-card-header" onclick="toggleLibCard(this)">
+              <div class="lib-card-title">Lateral Rib Breathing (Left-Side Focus)</div><span class="lib-chevron">▼</span>
+            </div>
+            <div class="lib-card-body">
+              <p class="lib-desc">Breathing into the side ribs to improve expansion and correct asymmetry.</p>
+              <div class="lib-section-title">How to do it</div>
+              <ul class="lib-list"><li>Lie on right side</li><li>Place hand on left ribs</li><li>Inhale into the side of the ribcage</li><li>Exhale long and soft</li></ul>
+              <div class="lib-section-title">The science</div>
+              <p class="lib-science">Improves rib mobility and diaphragm excursion. Helps correct left-right asymmetry in breathing mechanics, enhances sensory input to the left side, and supports thoracic rotation and scapular mechanics.</p>
+              <div class="lib-section-title">Why it's prescribed</div>
+              <ul class="lib-list"><li>Supports left-side neuromuscular activation</li><li>Helps reduce compensatory patterns</li></ul>
+            </div>
+          </div>
+          <div class="lib-card" id="lib-Thoracic_Expansion">
+            <div class="lib-card-header" onclick="toggleLibCard(this)">
+              <div class="lib-card-title">Thoracic Expansion Breathing</div><span class="lib-chevron">▼</span>
+            </div>
+            <div class="lib-card-body">
+              <p class="lib-desc">Breathing into the upper ribs and mid-back to improve mobility.</p>
+              <div class="lib-section-title">How to do it</div>
+              <ul class="lib-list"><li>Hands on ribs</li><li>Inhale → ribs widen</li><li>Exhale → ribs soften</li></ul>
+              <div class="lib-section-title">The science</div>
+              <p class="lib-science">Improves thoracic mobility and rib expansion. Reduces accessory muscle overuse in the neck and shoulders. Supports scapular mechanics and shoulder rehab.</p>
+              <div class="lib-section-title">Why it's prescribed</div>
+              <ul class="lib-list"><li>Helps shoulder rehab</li><li>Reduces neck tension</li></ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCREEN: Suggest a Feature -->
+  <div class="screen" id="screen-suggest">
+    <button class="back-btn" onclick="show('energy')">← Back</button>
+    <div class="section-label">Shape the app</div>
+    <div class="screen-title">Suggest a Feature</div>
+    <div class="screen-subtitle">Your experience with CFS/ME is what makes this app better. Every suggestion is read by the creator.</div>
+
+    <div class="suggest-card">
+      <div class="suggest-icon">💡</div>
+      <div class="suggest-body">
+        <div class="suggest-title">What would you like to see?</div>
+        <div class="suggest-desc">Tell us what would improve your breathwork practice — a new drill, a design change, a feature that's missing, or anything else.</div>
+        <div class="suggest-tags">
+          <span class="suggest-tag">Anonymous by default</span>
+          <span class="suggest-tag">Read by the creator</span>
+          <span class="suggest-tag">Informs future updates</span>
+        </div>
+        <a class="suggest-btn" href="https://forms.gle/kgX58kGhR3Pb7cLs5" target="_blank" onclick="trackSuggest()">
+          Open suggestion form
+          <span class="suggest-arrow">→</span>
+        </a>
+      </div>
+    </div>
+
+    <div class="suggest-privacy">
+      Your suggestion is submitted directly to the creator via Google Forms. Email is optional and will only be used to follow up on your suggestion if needed. Suggestions are never shared publicly.
+    </div>
+  </div>
+</div>
+<script>
+var GOALS={
+  flare:[
+    {name:'Calm Down',hint:'Reduce stress',icon:'🌊',cat:'DOWN_REGULATION'},
+    {name:'Clear Mind',hint:'Reduce overwhelm',icon:'🌫️',cat:'COGNITIVE_CALMING'},
+    {name:'Quick Rebalance',hint:'Brief rebalance',icon:'↩️',cat:'QUICK_RESET'},
+    {name:'Sleep / Wind-Down',hint:'Rest preparation',icon:'🌙',cat:'SLEEP',full:true},
+    {name:'Pre-Exercise',hint:'Gentle activation prep',icon:'🔆',cat:'PRE_EXERCISE',full:true},
+    {name:'Post-Exercise',hint:'Recovery & calm down',icon:'🔅',cat:'POST_EXERCISE',full:true}
+  ],
+  moderate:[
+    {name:'Down-Regulation',hint:'Nervous system calm',icon:'🌊',cat:'DOWN_REGULATION'},
+    {name:'Cognitive Calming',hint:'Mental quiet',icon:'🌫️',cat:'COGNITIVE_CALMING'},
+    {name:'Quick Rebalance',hint:'Brief rebalance',icon:'↩️',cat:'QUICK_RESET'},
+    {name:'Sleep / Wind-Down',hint:'Rest preparation',icon:'🌙',cat:'SLEEP',full:true},
+    {name:'Pre-Exercise',hint:'Activate & prepare',icon:'🔆',cat:'PRE_EXERCISE',full:true},
+    {name:'Post-Exercise',hint:'Recovery & calm down',icon:'🔅',cat:'POST_EXERCISE',full:true}
+  ],
+  good:[
+    {name:'Down-Regulation',hint:'Nervous system calm',icon:'🌊',cat:'DOWN_REGULATION'},
+    {name:'Cognitive Focus',hint:'Mental clarity',icon:'🔷',cat:'COGNITIVE_FOCUS'},
+    {name:'Quick Rebalance',hint:'Brief rebalance',icon:'↩️',cat:'QUICK_RESET'},
+    {name:'Sleep / Wind-Down',hint:'Rest preparation',icon:'🌙',cat:'SLEEP',full:true},
+    {name:'Pre-Exercise',hint:'Prime & activate',icon:'🔆',cat:'PRE_EXERCISE',full:true},
+    {name:'Post-Exercise',hint:'Recovery & calm down',icon:'🔅',cat:'POST_EXERCISE',full:true}
+  ]
+};
+
+var DRILLS={
+  flare:{
+    DOWN_REGULATION:{
+      '1':[
+        {name:'Soft Sigh Exhale',rounds:'10 rounds',rec:true, instr:'Gentle nasal inhale, then release a soft audible sigh through the mouth. Let the exhale do the work. Soften jaw and shoulders with each breath.'},
+        {name:'3/5 Downshift',   rounds:'7-8 rounds',rec:false,instr:'Inhale softly for 3 counts. Exhale slowly for 5 counts through pursed lips. The longer exhale signals safety to your nervous system.'}
+      ],
+      '2':[
+        {name:'Soft Sigh Exhale',rounds:'20 rounds',rec:true, instr:'Gentle nasal inhale, then release a soft audible sigh through the mouth. Let the exhale do the work. Soften jaw and shoulders with each breath.'},
+        {name:'3/5 Downshift',   rounds:'15 rounds',rec:false,instr:'Inhale softly for 3 counts. Exhale slowly for 5 counts through pursed lips. The longer exhale signals safety to your nervous system.'}
+      ]
+    },
+    COGNITIVE_CALMING:{
+      '1':[
+        {name:'Normalise Breath',rounds:'12 rounds',rec:true, instr:'Simply observe your natural breathing without changing it. Notice the rise and fall. If the breath wants to slow, allow it.'},
+        {name:'Micro-Holds',     rounds:'10 rounds',rec:false,instr:'Inhale gently, pause 1-2 seconds at the top, then exhale slowly. The tiny pause creates calm without demanding effort.'}
+      ],
+      '2':[
+        {name:'Normalise Breath',rounds:'24 rounds',rec:true, instr:'Simply observe your natural breathing without changing it. Notice the rise and fall. If the breath wants to slow, allow it.'},
+        {name:'Micro-Holds',     rounds:'20 rounds',rec:false,instr:'Inhale gently, pause 1-2 seconds at the top, then exhale slowly. The tiny pause creates calm without demanding effort.'}
+      ]
+    },
+    QUICK_RESET:{
+      '1':[
+        {name:'3-3-6 Reset',     rounds:'5 rounds',rec:true, instr:'Inhale for 3 counts. Hold for 3 counts. Exhale for 6 counts. Activates the parasympathetic response within seconds.'},
+        {name:'One-Minute Calm', rounds:'6 rounds',rec:false,instr:'Breathe in slowly for 4 counts, breathe out for 6 counts. Focus only on the exhale lengthening.'}
+      ],
+      '2':[
+        {name:'3-3-6 Reset',     rounds:'10 rounds',rec:true, instr:'Inhale for 3 counts. Hold for 3 counts. Exhale for 6 counts. Activates the parasympathetic response within seconds.'},
+        {name:'One-Minute Calm', rounds:'12 rounds',rec:false,instr:'Breathe in slowly for 4 counts, breathe out for 6 counts. Focus only on the exhale lengthening.'}
+      ]
+    },
+    SLEEP:{
+      '1':[
+        {name:'Humming + Scan',  rounds:'7-8 rounds',rec:true, instr:'Inhale through the nose, exhale with a soft hum. Slowly scan from head to feet releasing tension. Humming calms the vagal nerve.'},
+        {name:'3/5 Downshift',   rounds:'7-8 rounds',rec:false,instr:'Inhale 3 counts, exhale 5 counts. The extended exhale activates the rest response, preparing the body for sleep.'}
+      ],
+      '2':[
+        {name:'Humming + Scan',  rounds:'15 rounds',rec:true, instr:'Inhale through the nose, exhale with a soft hum. Slowly scan from head to feet releasing tension. Humming calms the vagal nerve.'},
+        {name:'One-Minute Calm', rounds:'12 rounds',rec:false,instr:'Inhale 4, exhale 6. Gentle extended exhale cues the nervous system toward rest.'}
+      ]
+    },
+    PRE_EXERCISE:{
+      '1':[
+        {name:'Exhale on Effort', rounds:'10 rounds',rec:true, instr:'Synchronise your exhale with movement or effort. Inhale to prepare, exhale as you move. Primes the system gently before activity.'},
+        {name:'3-3-6 Reset',      rounds:'5 rounds', rec:false,instr:'Inhale 3, hold 3, exhale 6. A brief reset to clear mental fog and prepare the nervous system before gentle movement.'}
+      ],
+      '2':[
+        {name:'Exhale on Effort', rounds:'20 rounds',rec:true, instr:'Synchronise your exhale with movement or effort. Inhale to prepare, exhale as you move. Primes the system gently before activity.'},
+        {name:'Normalise Breath', rounds:'24 rounds',rec:false,instr:'Observe natural breathing for 2 minutes to establish a calm baseline before movement begins.'}
+      ]
+    },
+    POST_EXERCISE:{
+      '1':[
+        {name:'Soft Sigh Exhale', rounds:'10 rounds',rec:true, instr:'Nasal inhale, soft mouth sigh on the exhale. Signals the nervous system to shift out of effort mode. Use immediately after movement.'},
+        {name:'3/5 Downshift',    rounds:'7-8 rounds',rec:false,instr:'Inhale 3, exhale 5. Quickly downregulates the activation from exercise without shocking the system.'}
+      ],
+      '2':[
+        {name:'Soft Sigh Exhale', rounds:'20 rounds',rec:true, instr:'Nasal inhale, soft mouth sigh on the exhale. Signals the nervous system to shift out of effort mode. Use immediately after movement.'},
+        {name:'Humming + Scan',   rounds:'15 rounds',rec:false,instr:'Inhale through nose, hum on exhale. Scan for areas of tension from the activity. Deeply restorative post-movement.'}
+      ]
+    }
+  },
+  moderate:{
+    DOWN_REGULATION:{
+      '1-2':[
+        {name:'Soft Sigh Exhale', rounds:'10-20 rounds',rec:true, instr:'Gentle nasal inhale, then soft audible sigh on the exhale. Let the exhale do all the work.'},
+        {name:'3/5 Downshift',    rounds:'7-15 rounds', rec:false,instr:'Inhale 3 counts through the nose. Exhale 5 counts through pursed lips. Longer exhale activates rest response.'}
+      ],
+      '5':[
+        {name:'Humming Breath',    rounds:'37 rounds',rec:true, instr:'Nasal inhale, then exhale with a steady hum for as long as comfortable. Stimulates the vagus nerve directly.'},
+        {name:'Diaphragmatic 4/6', rounds:'30 rounds',rec:false,instr:'Hand on belly. Inhale 4 counts, belly rises. Exhale 6 counts, belly falls. Only belly movement.'}
+      ],
+      '10':[
+        {name:'Diaphragmatic 4/6', rounds:'60 rounds',rec:true, instr:'Hand on belly. Inhale 4 counts, belly rises. Exhale 6 counts, belly falls. Pure diaphragmatic breathing for sustained regulation.'},
+        {name:'Humming Breath',    rounds:'55 rounds',rec:false,instr:'Sustained nasal inhale and long hum exhale for 10 minutes. Deeply regulating for the nervous system.'}
+      ]
+    },
+    COGNITIVE_CALMING:{
+      '1-2':[
+        {name:'Normalise Breath', rounds:'12-24 rounds',rec:true, instr:'Observe your breath without changing it. Count: in 2, out 2. Stay curious rather than controlling.'},
+        {name:'Micro-Holds',      rounds:'10-20 rounds',rec:false,instr:'Inhale gently, 1-2 second pause at top, exhale slowly. The pause interrupts rumination.'}
+      ],
+      '5':[
+        {name:'Box Breathing',    rounds:'19 rounds',rec:true, instr:'Inhale 4. Hold 4. Exhale 4. Hold 4. Classic nervous system reset. Equal sides promote mental balance.'},
+        {name:'Normalise Breath', rounds:'60 rounds',rec:false,instr:'Extended mindful breathing observation — simply watch the breath without intervention for 5 minutes.'}
+      ],
+      '10':[
+        {name:'Extended Box',     rounds:'37-38 rounds',rec:true, instr:'Inhale 4. Hold 4. Exhale 4. Hold 4. Extend to 6 counts per phase when comfortable.'},
+        {name:'Box Breathing',    rounds:'38 rounds',  rec:false,instr:'Sustained 4-4-4-4 box breathing for 10 minutes. Promotes deep cognitive calm and mental clarity.'}
+      ]
+    },
+    QUICK_RESET:{
+      '1-2':[
+        {name:'3-3-6 Reset',     rounds:'5-10 rounds',rec:true, instr:'Inhale 3. Hold 3. Exhale 6. Quick to do, powerful in effect.'},
+        {name:'4-Breath Box',    rounds:'7-15 rounds',rec:false,instr:'Inhale 4. Hold 4. Exhale 4. Hold 4. Brief box to restore clarity.'},
+        {name:'One-Minute Calm', rounds:'6-12 rounds',rec:false,instr:'Inhale 4, exhale 6. Repeat gently. The extended exhale pulls you into calm.'}
+      ]
+    },
+    SLEEP:{
+      '1-2':[
+        {name:'Humming + Scan',      rounds:'7-15 rounds',rec:true, instr:'Inhale through nose, hum on exhale. Scan from crown to toes. Release each area as you pass through.'},
+        {name:'3/5 Downshift',       rounds:'7-15 rounds',rec:false,instr:'Inhale 3, exhale 5. Steady extended exhale cues the nervous system toward sleep.'}
+      ],
+      '5':[
+        {name:'Dirga',               rounds:'30 rounds',rec:true, instr:'Three-part breath: belly first, then ribcage, then chest. Exhale in reverse. Slow, full, and deeply restorative.'},
+        {name:'Extended Exhale 4/8', rounds:'25 rounds',rec:false,instr:'Inhale 4 counts. Exhale 8 counts. The 1:2 ratio prepares the nervous system for sleep onset.'}
+      ],
+      '10':[
+        {name:'Extended Exhale 4/8', rounds:'50 rounds',rec:true, instr:'Inhale 4 counts. Exhale 8 counts. The 1:2 ratio is one of the most effective patterns for sleep onset.'},
+        {name:'Dirga',               rounds:'60 rounds',rec:false,instr:'Three-part belly-rib-chest inhale, reverse exhale for 10 minutes. Deeply nourishing pre-sleep practice.'}
+      ]
+    },
+    MOVEMENT:{
+      '1-2':[
+        {name:'Exhale on Effort',      rounds:'10-20 rounds',rec:true, instr:'Exhale with each effort or movement. Inhale in the rest phase. Paces you and protects from post-exertional reactions.'},
+        {name:'Breath-Paced Mobility', rounds:'10-15 rounds',rec:false,instr:'Each inhale guides movement in one direction, each exhale guides return. Breath leads movement.'}
+      ],
+      '5':[
+        {name:'Breath-Paced Mobility', rounds:'30 rounds',rec:true, instr:'One full breath cycle per movement. Inhale expands, exhale contracts. Let breath be the metronome.'},
+        {name:'Nasal Walking Pad',     rounds:'50 rounds',rec:false,instr:'Slow nasal-only walking at gentle pace. Match step rhythm to breath cycle for 5 minutes.'}
+      ],
+      '10':[
+        {name:'Nasal Walking Pad',     rounds:'100 rounds',rec:true, instr:'Walk slowly breathing entirely through the nose. Match step rhythm to breath cycle at all times.'},
+        {name:'Breath-Paced Mobility', rounds:'60 rounds', rec:false,instr:'Sustained breath-paced movement for 10 minutes. Inhale expands, exhale returns. Fully integrated practice.'}
+      ]
+    },
+    PRE_EXERCISE:{
+      '1-2':[
+        {name:'Exhale on Effort',  rounds:'10-20 rounds',rec:true, instr:'Synchronise exhale with movement. Inhale to prepare, exhale as you move. Primes the system before activity.'},
+        {name:'3-3-6 Reset',       rounds:'5-10 rounds', rec:false,instr:'Inhale 3, hold 3, exhale 6. Clears mental fog and regulates the nervous system before moderate movement.'}
+      ],
+      '5':[
+        {name:'Breath-Paced Mobility',rounds:'30 rounds',rec:true, instr:'5-minute breath-paced warm-up. Let each inhale guide movement in, each exhale guide out. Activates without straining.'},
+        {name:'Diaphragmatic 4/6',    rounds:'30 rounds',rec:false,instr:'5 minutes of belly breathing to oxygenate the body and prepare the diaphragm for movement.'}
+      ],
+      '10':[
+        {name:'Nasal Walking Pad',    rounds:'100 rounds',rec:true, instr:'10-minute nasal walking warm-up. Builds aerobic readiness at a safe, controlled pace using nasal breathing only.'},
+        {name:'Breath-Paced Mobility',rounds:'60 rounds', rec:false,instr:'10-minute breath-paced movement warm-up. Full integration of breath and movement before exercise.'}
+      ]
+    },
+    POST_EXERCISE:{
+      '1-2':[
+        {name:'Soft Sigh Exhale', rounds:'10-20 rounds',rec:true, instr:'Nasal inhale, soft mouth sigh on the exhale. Immediately downregulates from exercise mode.'},
+        {name:'3/5 Downshift',    rounds:'7-15 rounds', rec:false,instr:'Inhale 3, exhale 5. Quickly shifts the nervous system from sympathetic activation toward recovery.'}
+      ],
+      '5':[
+        {name:'Humming Breath',    rounds:'37 rounds',rec:true, instr:'Nasal inhale, long hum exhale. Activates the vagus nerve for accelerated post-exercise recovery.'},
+        {name:'Diaphragmatic 4/6', rounds:'30 rounds',rec:false,instr:'5 minutes of slow belly breathing after exercise to return heart rate and nervous system to baseline.'}
+      ],
+      '10':[
+        {name:'Extended Exhale 4/8',rounds:'50 rounds',rec:true, instr:'Inhale 4, exhale 8. Deep parasympathetic activation for thorough post-exercise recovery. Reduces PEM risk.'},
+        {name:'Dirga',              rounds:'60 rounds',rec:false,instr:'Three-part breath for 10 minutes post-exercise. Fully oxygenates and deeply restores after activity.'}
+      ]
+    }
+  },
+  good:{
+    DOWN_REGULATION:{
+      '1-2':[
+        {name:'Soft Sigh Exhale', rounds:'10-20 rounds',rec:true, instr:'Nasal inhale, audible mouth sigh on the exhale. No force — pure release.'},
+        {name:'3/5 Downshift',    rounds:'7-15 rounds', rec:false,instr:'Inhale 3 counts, exhale 5 counts. Calm the nervous system before it overreaches.'}
+      ],
+      '5':[
+        {name:'Humming Breath',    rounds:'37 rounds',rec:true, instr:'Nasal inhale, long hum exhale. Feel the vibration resonating in your head and chest. Deeply regulating.'},
+        {name:'Diaphragmatic 4/6', rounds:'37 rounds',rec:false,instr:'Belly rises on inhale, falls on exhale. 5 minutes of pure diaphragmatic breathing for sustained regulation.'}
+      ],
+      '10':[
+        {name:'Diaphragmatic 4/6', rounds:'60 rounds',rec:true, instr:'Belly rises on the 4-count inhale, falls on the 6-count exhale. Chest stays soft. Pure diaphragmatic breathing.'},
+        {name:'Humming Breath',    rounds:'55 rounds',rec:false,instr:'10 minutes of nasal inhale and long hum exhale. Maximum vagal activation and regulation.'}
+      ]
+    },
+    COGNITIVE_FOCUS:{
+      '1-2':[
+        {name:'Normalise Breath', rounds:'12-24 rounds',rec:false,instr:'Witness your breath without interference. Baseline awareness sharpens attention.'},
+        {name:'Micro-Holds',      rounds:'10-20 rounds',rec:false,instr:'Small pauses at top of inhale interrupt mental drift and restore present-moment awareness.'},
+        {name:'4-Breath Box',     rounds:'7-15 rounds', rec:true, instr:'Inhale 4. Hold 4. Exhale 4. Hold 4. Balanced symmetry promotes clear cognitive function. ⭐ Recommended.'}
+      ],
+      '5':[
+        {name:'Box Breathing',    rounds:'19 rounds',   rec:true, instr:'Equal-phase box: inhale 4, hold 4, exhale 4, hold 4. Used before demanding cognitive tasks.'},
+        {name:'Micro-Holds',      rounds:'60 rounds',   rec:false,instr:'5 minutes of sustained micro-hold breathing for deep attentional training.'}
+      ],
+      '10':[
+        {name:'Extended Box',     rounds:'37-38 rounds',rec:true, instr:'Begin with 4-count box, extend to 5-6 counts per phase as you settle. Sustained focus state.'},
+        {name:'Box Breathing',    rounds:'38 rounds',   rec:false,instr:'Sustained 4-4-4-4 box breathing for 10 minutes to build deep, consistent cognitive focus.'}
+      ]
+    },
+    QUICK_RESET:{
+      '1-2':[
+        {name:'3-3-6 Reset',     rounds:'5-10 rounds',rec:true, instr:'Inhale 3. Hold 3. Exhale 6. Instant reset. Effective at any point in the day.'},
+        {name:'One-Minute Calm', rounds:'6-12 rounds',rec:false,instr:'Inhale 4, exhale 6. Simple, reliable, always available.'}
+      ]
+    },
+    SLEEP:{
+      '1-2':[
+        {name:'Humming + Scan',      rounds:'7-15 rounds',rec:true, instr:'Hum on the exhale while scanning body tension head to toe. A powerful pre-sleep ritual.'},
+        {name:'One-Minute Calm',     rounds:'6-12 rounds',rec:false,instr:'Inhale 4, exhale 6. Gentle and reliable for beginning the transition toward sleep.'}
+      ],
+      '5':[
+        {name:'Dirga',               rounds:'30 rounds',rec:true, instr:'Three-part belly-rib-chest inhale, reverse exhale. Deeply nourishing. Perfect for transitioning toward sleep.'},
+        {name:'Extended Exhale 4/8', rounds:'25 rounds',rec:false,instr:'Inhale 4, exhale 8. Long exhale activates the parasympathetic response in preparation for sleep.'}
+      ],
+      '10':[
+        {name:'Extended Exhale 4/8', rounds:'50 rounds',rec:true, instr:'Inhale 4, exhale 8. Activates deep parasympathetic recovery — ideal for sleep onset.'},
+        {name:'Dirga',               rounds:'60 rounds',rec:false,instr:'Three-part breath for 10 minutes. Completely nourishing and grounding pre-sleep practice.'}
+      ]
+    },
+    MOVEMENT:{
+      '1-2':[
+        {name:'Exhale on Effort',      rounds:'10-20 rounds',rec:true, instr:'Match each exhale to your movement effort. Inhale in the rest phase.'},
+        {name:'Breath-Paced Mobility', rounds:'10-15 rounds',rec:false,instr:'Each inhale guides movement in one direction, each exhale guides return.'}
+      ],
+      '5':[
+        {name:'Breath-Paced Mobility', rounds:'30 rounds',rec:true, instr:'One full breath cycle per movement. Inhale expands, exhale contracts. Breath is the metronome.'},
+        {name:'Nasal Walking Pad',     rounds:'50 rounds',rec:false,instr:'5 minutes nasal-only walking. Match step rhythm to breath cycle for steady aerobic conditioning.'}
+      ],
+      '10':[
+        {name:'Nasal Walking Pad',     rounds:'100 rounds',rec:true, instr:'Sustained nasal-only breathing during gentle walking. Build CO2 tolerance and aerobic efficiency.'},
+        {name:'Breath-Paced Mobility', rounds:'60 rounds', rec:false,instr:'10-minute fully integrated breath and movement practice. Inhale expands, exhale contracts throughout.'}
+      ]
+    },
+    PRE_EXERCISE:{
+      '1-2':[
+        {name:'4-Breath Box',      rounds:'7-15 rounds', rec:true, instr:'Inhale 4, hold 4, exhale 4, hold 4. Focuses the mind, oxygenates the body, and primes the system for performance.'},
+        {name:'Exhale on Effort',  rounds:'10-20 rounds',rec:false,instr:'Synchronise exhale with warm-up movements. Inhale to prepare, exhale as you move. Activates breath-movement connection.'}
+      ],
+      '5':[
+        {name:'Breath-Paced Mobility',rounds:'30 rounds',rec:true, instr:'5-minute breath-paced warm-up. Every movement guided by breath. Activates the system safely and efficiently.'},
+        {name:'Box Breathing',        rounds:'19 rounds',rec:false,instr:'5 minutes of box breathing pre-exercise to establish mental focus, steady heart rate, and nervous system readiness.'}
+      ],
+      '10':[
+        {name:'Nasal Walking Pad',    rounds:'100 rounds',rec:true, instr:'10-minute nasal walking warm-up. Ideal aerobic preparation at a safe, breath-controlled intensity.'},
+        {name:'Breath-Paced Mobility',rounds:'60 rounds', rec:false,instr:'10-minute progressive breath-paced movement. Full mind-body activation before exercise.'}
+      ]
+    },
+    POST_EXERCISE:{
+      '1-2':[
+        {name:'Soft Sigh Exhale', rounds:'10-20 rounds',rec:true, instr:'Nasal inhale, audible mouth sigh. Immediately shifts the nervous system from effort mode to recovery.'},
+        {name:'3/5 Downshift',    rounds:'7-15 rounds', rec:false,instr:'Inhale 3, exhale 5. Fast downregulation after performance. Reduces cortisol and returns to baseline.'}
+      ],
+      '5':[
+        {name:'Humming Breath',    rounds:'37 rounds',rec:true, instr:'Nasal inhale, sustained hum exhale. Activates vagal tone for accelerated recovery and reduced inflammation.'},
+        {name:'Diaphragmatic 4/6', rounds:'37 rounds',rec:false,instr:'5 minutes of slow belly breathing post-exercise. Returns the body to its natural, regulated rhythm.'}
+      ],
+      '10':[
+        {name:'Extended Exhale 4/8',rounds:'50 rounds',rec:true, instr:'Inhale 4, exhale 8. Deep parasympathetic activation for full post-performance recovery. Reduces PEM risk significantly.'},
+        {name:'Dirga',              rounds:'60 rounds',rec:false,instr:'Three-part breath for 10 minutes after exercise. Complete oxygenation and restoration of the nervous system.'}
+      ]
+    }
+  }
+}
+var COMPLETE_MSG={flare:'Rest was the practice today. You met yourself where you are — that takes courage.',moderate:'A gentle session well done. Notice how you feel. Rest follows breath.',good:'You showed up fully. Carry this calm into the rest of your day.'};
+
+var PHASE_PATTERNS={
+  'Soft Sigh Exhale':      [{p:'Inhale',s:3},{p:'Sigh out',s:4}],
+  '3/5 Downshift':         [{p:'Inhale',s:3},{p:'Exhale',s:5}],
+  'Normalise Breath':      [{p:'Inhale',s:3},{p:'Exhale',s:3}],
+  'Micro-Holds':           [{p:'Inhale',s:3},{p:'Hold',s:2},{p:'Exhale',s:4}],
+  '3-3-6 Reset':           [{p:'Inhale',s:3},{p:'Hold',s:3},{p:'Exhale',s:6}],
+  'One-Minute Calm':       [{p:'Inhale',s:4},{p:'Exhale',s:6}],
+  'Humming + Scan':        [{p:'Inhale',s:4},{p:'Hum out',s:6}],
+  'Exhale on Effort':      [{p:'Inhale',s:3},{p:'Exhale',s:4}],
+  'Humming Breath':        [{p:'Inhale',s:4},{p:'Hum out',s:7}],
+  'Diaphragmatic 4/6':     [{p:'Inhale',s:4},{p:'Exhale',s:6}],
+  'Box Breathing':         [{p:'Inhale',s:4},{p:'Hold',s:4},{p:'Exhale',s:4},{p:'Hold',s:4}],
+  'Extended Box':          [{p:'Inhale',s:4},{p:'Hold',s:4},{p:'Exhale',s:4},{p:'Hold',s:4}],
+  '4-Breath Box':          [{p:'Inhale',s:4},{p:'Hold',s:4},{p:'Exhale',s:4},{p:'Hold',s:4}],
+  'Dirga':                 [{p:'Belly in',s:4},{p:'Ribs & chest',s:3},{p:'Exhale',s:6}],
+  'Extended Exhale 4/8':   [{p:'Inhale',s:4},{p:'Exhale',s:8}],
+  'Breath-Paced Mobility': [{p:'Inhale & expand',s:4},{p:'Exhale & return',s:5}],
+  'Nasal Walking Pad':     [{p:'Inhale steps',s:4},{p:'Exhale steps',s:4}],
+  'Nasal Breathing Prep':  [{p:'Inhale',s:4},{p:'Exhale',s:4}]
+};
+
+var TIME_MAP={
+  flare:    [{label:'1 minute',   key:'1',   rec:true, opt:false},{label:'2 minutes',  key:'2',   rec:false,opt:false}],
+  moderate: [{label:'1-2 minutes',key:'1-2', rec:true, opt:false},{label:'5 minutes',  key:'5',   rec:true, opt:false},{label:'10 minutes',key:'10',rec:false,opt:true}],
+  good:     [{label:'1-2 minutes',key:'1-2', rec:false,opt:false},{label:'5 minutes',  key:'5',   rec:true, opt:false},{label:'10 minutes',key:'10',rec:false,opt:false}]
+};
+
+var S={energy:null,goal:null,goalCat:null,time:null,timeLabel:null,drill:null,totalRounds:0,currentRound:0,phases:[],phaseIdx:0,started:false,paused:false,breathTimer:null,cdTimer:null};
+
+function show(id){var a=document.querySelectorAll('.screen');for(var i=0;i<a.length;i++)a[i].classList.remove('active');document.getElementById('screen-'+id).classList.add('active')}
+function goBack(to){show(to)}
+function goHome(){clearInterval(S.breathTimer);clearInterval(S.cdTimer);stopSound();S={energy:null,goal:null,goalCat:null,time:null,timeLabel:null,drill:null,totalRounds:0,currentRound:0,phases:[],phaseIdx:0,started:false,paused:false,breathTimer:null,cdTimer:null};show('energy')}
+
+function selectEnergy(level){S.energy=level;buildGoals();show('goal')}
+
+function buildGoals(){var grid=document.getElementById('goal-grid');grid.innerHTML='';GOALS[S.energy].forEach(function(g){var d=document.createElement('div');d.className='goal-card'+(g.full?' full-width':'');d.innerHTML='<span class="goal-icon">'+g.icon+'</span><div class="goal-name">'+g.name+'</div><div class="goal-hint">'+g.hint+'</div>';d.onclick=function(){selectGoal(g)};grid.appendChild(d)})}
+function selectGoal(g){S.goal=g.name;S.goalCat=g.cat;buildTimes();show('time')}
+
+function buildTimes(){document.getElementById('flare-notice').style.display=S.energy==='flare'?'block':'none';document.getElementById('time-subtitle').textContent=S.energy==='flare'?'Keep it gentle. Even 1 minute is enough.':'Choose a duration that feels right. You can always stop early.';document.getElementById('breadcrumb-time').innerHTML=makeCrumbs([S.energy,S.goal]);var wrap=document.getElementById('time-options');wrap.innerHTML='';TIME_MAP[S.energy].forEach(function(t){var cat=DRILLS[S.energy][S.goalCat];if(!cat||!cat[t.key]||!cat[t.key].length)return;var btn=document.createElement('button');btn.className='time-btn'+(t.opt?' optional':'');btn.innerHTML='<span class="time-label">'+t.label+'</span>'+(t.rec?'<span class="time-badge rec">Recommended</span>':'')+(t.opt?'<span class="time-badge opt">Optional</span>':'');btn.onclick=function(){selectTime(t.key,t.label)};wrap.appendChild(btn)})}
+function selectTime(key,label){S.time=key;S.timeLabel=label;buildDrills();show('drills')}
+
+function buildDrills(){document.getElementById('breadcrumb-drills').innerHTML=makeCrumbs([S.energy,S.goal,S.timeLabel]);var list=document.getElementById('drill-list');list.innerHTML='';var drills=(DRILLS[S.energy][S.goalCat]||{})[S.time]||[];drills.forEach(function(d){var card=document.createElement('div');card.className='drill-card'+(d.rec?' drill-card-rec':'');card.innerHTML='<div class="drill-name">'+d.name+(d.rec?'<span class="rec-badge">Recommended</span>':'')+'</div><div class="drill-meta"><span class="drill-rounds">'+d.rounds+'</span><span class="drill-tag">'+S.goalCat.replace(/_/g,' ')+'</span></div>';card.onclick=function(){selectDrill(d)};list.appendChild(card)})}
+function selectDrill(d){S.drill=d;setupPractice(d);show('practice')}
+
+function parseRounds(str){var n=str.match(/\d+/g);return n?parseInt(n[n.length-1]):10}
+
+function setupPractice(drill){
+  clearInterval(S.breathTimer);clearInterval(S.cdTimer);stopSound();
+  S.totalRounds=parseRounds(drill.rounds);S.currentRound=0;
+  S.phases=PHASE_PATTERNS[drill.name]||[{p:'Inhale',s:4},{p:'Exhale',s:4}];
+  S.phaseIdx=0;S.started=false;S.paused=false;
+  document.getElementById('practice-drill-name').textContent=drill.name;
+  document.getElementById('practice-rounds-total').textContent=drill.rounds+' · '+S.timeLabel;
+  document.getElementById('instructions-text').textContent=drill.instr;
+  document.getElementById('instructions-card').style.display='block';
+  document.getElementById('timer-bar').style.width='0%';
+  document.getElementById('paused-badge').classList.remove('show');
+  document.getElementById('pause-btn').style.display='none';
+  var btn=document.getElementById('breath-btn');
+  btn.disabled=false;btn.style.transition='none';btn.style.transform='scale(1)';btn.style.background='radial-gradient(ellipse at 35% 30%,#FFB347,#2f354a)';
+  setCircle('Begin','','Tap to start');
+  var dots=document.getElementById('round-dots');dots.innerHTML='';
+  var n=Math.min(S.totalRounds,40);
+  for(var i=0;i<n;i++){var dot=document.createElement('div');dot.className='round-dot';dot.id='rdot-'+i;dots.appendChild(dot)}
+}
+
+function setCircle(phase,num,unit){document.getElementById('b-phase').textContent=phase;document.getElementById('b-num').textContent=num;document.getElementById('b-unit').textContent=unit}
+
+function circleTapped(){
+  if(S.started)return;
+  S.started=true;getCtx();
+  document.getElementById('breath-btn').disabled=true;
+  document.getElementById('instructions-card').style.display='none';
+  document.getElementById('pause-btn').style.display='inline-block';
+  startCountdown(10);
+}
+
+function startCountdown(n){
+  var btn=document.getElementById('breath-btn');
+  btn.style.transition='background .4s ease';
+  btn.style.background='radial-gradient(ellipse at 35% 30%,#7EC8A0,#2f354a)';
+  playCountdownTick(n);setCircle('Starting in',n,'seconds');
+  S.cdTimer=setInterval(function(){
+    n--;
+    if(n<=0){clearInterval(S.cdTimer);stopSound();setCircle('','','');runPhase();}
+    else{playCountdownTick(n);setCircle('Starting in',n,'seconds');}
+  },1000);
+}
+
+function runPhase(){
+  if(S.paused)return;
+  var phase=S.phases[S.phaseIdx],total=S.phases.length;
+  var p=phase.p.toLowerCase();
+  var isIn=p.indexOf('inhale')>=0||p.indexOf('belly')>=0||p.indexOf('ribs')>=0||p.indexOf('expand')>=0;
+  setCircle(phase.p,phase.s,'seconds');
+  var sound=getSoundForPhase(phase.p);
+  playTone(sound.type,sound.freq,phase.s);
+  var btn=document.getElementById('breath-btn');
+  /* Colour the circle for this phase */
+  var isHold=p.indexOf('hold')>=0;
+  var phaseColour=isIn?'#FFB347':isHold?'#9B8EC4':'#6B8CAE';
+  var phaseGrad='radial-gradient(ellipse at 35% 30%, '+phaseColour+', #2f354a)';
+  btn.style.setProperty('--phase-bg', phaseGrad);
+  btn.style.background=phaseGrad;
+  btn.style.transition='transform '+phase.s+'s ease-in-out';
+  btn.style.transform=isIn?'scale(1.1)':isHold?'scale(1.1)':'scale(0.9)';
+  document.getElementById('timer-bar').style.width=((S.currentRound*total+S.phaseIdx)/(S.totalRounds*total)*100)+'%';
+  var sec=phase.s;
+  clearInterval(S.breathTimer);
+  S.breathTimer=setInterval(function(){
+    if(S.paused)return;
+    sec--;document.getElementById('b-num').textContent=Math.max(0,sec);
+    if(sec<=0){
+      clearInterval(S.breathTimer);S.phaseIdx++;
+      if(S.phaseIdx>=total){S.phaseIdx=0;S.currentRound++;markDot(S.currentRound-1);if(S.currentRound>=S.totalRounds){completePractice();return;}}
+      runPhase();
+    }
+  },1000);
+}
+
+function markDot(idx){var d=document.getElementById('rdot-'+idx);if(d){d.classList.remove('active');d.classList.add('done')}var n=document.getElementById('rdot-'+(idx+1));if(n)n.classList.add('active')}
+
+function togglePause(){
+  S.paused=!S.paused;
+  var pb=document.getElementById('pause-btn'),badge=document.getElementById('paused-badge'),btn=document.getElementById('breath-btn');
+  if(S.paused){clearInterval(S.breathTimer);clearInterval(S.cdTimer);stopSound();pb.textContent='Resume';badge.classList.add('show');btn.style.transition='transform .4s ease';btn.style.transform='scale(1)';btn.style.background='radial-gradient(ellipse at 35% 30%,#9B8EC4,#2f354a)';setCircle('Paused','','');}
+  else{pb.textContent='Pause';badge.classList.remove('show');runPhase();}
+}
+
+function stopPractice(){clearInterval(S.breathTimer);clearInterval(S.cdTimer);stopSound();S.started=false;S.paused=false;show('drills')}
+function completePractice(){clearInterval(S.breathTimer);stopSound();document.getElementById('timer-bar').style.width='100%';document.getElementById('complete-message').textContent=COMPLETE_MSG[S.energy];saveSession();show('complete')}
+function repeatDrill(){selectDrill(S.drill)}
+
+/* AUDIO */
+var _ctx=null,_muted=false,_activeNode=null;
+function getCtx(){if(!_ctx){try{_ctx=new(window.AudioContext||window.webkitAudioContext)();}catch(e){}}if(_ctx&&_ctx.state==='suspended')_ctx.resume();return _ctx}
+function toggleMute(){_muted=!_muted;var btn=document.getElementById('mute-btn');if(btn){btn.textContent=_muted?'🔕':'🔔';btn.classList.toggle('muted',_muted)}if(_muted)stopSound()}
+function stopSound(){if(_activeNode){try{_activeNode.stop();}catch(e){}_activeNode=null}}
+
+function playTone(type,freq,duration){
+  if(_muted)return;var ctx=getCtx();if(!ctx)return;
+  stopSound();
+  var now=ctx.currentTime,dur=Math.max(0.1,duration-0.15);
+
+  if(type==='inhale'){
+    /*
+      Inhale: two detuned sine waves mixed together (gentle chorus effect).
+      G3 196Hz + G3+5cents. Slow rise in volume, slow fade.
+      Feels like a soft opening breath — airy, spacious.
+    */
+    var o1=ctx.createOscillator(),o2=ctx.createOscillator();
+    var g1=ctx.createGain(),g2=ctx.createGain(),master=ctx.createGain();
+    o1.type='sine';o1.frequency.setValueAtTime(freq,now);
+    o2.type='sine';o2.frequency.setValueAtTime(freq*1.003,now); /* tiny detune */
+    o1.connect(g1);o2.connect(g2);g1.connect(master);g2.connect(master);master.connect(ctx.destination);
+    g1.gain.value=0.5;g2.gain.value=0.5;
+    master.gain.setValueAtTime(0,now);
+    master.gain.linearRampToValueAtTime(0.09,now+dur*0.4);
+    master.gain.setValueAtTime(0.09,now+dur*0.75);
+    master.gain.linearRampToValueAtTime(0,now+dur);
+    o1.start(now);o1.stop(now+dur);
+    o2.start(now);o2.stop(now+dur);
+    _activeNode=o1;
+
+  }else if(type==='exhale'){
+    /*
+      Exhale: warm sine, frequency gently descends, long slow fade.
+      E3 165Hz — lower, grounding, like a soft sigh releasing tension.
+    */
+    var osc=ctx.createOscillator(),gain=ctx.createGain();
+    osc.connect(gain);gain.connect(ctx.destination);
+    osc.type='sine';
+    osc.frequency.setValueAtTime(freq,now);
+    osc.frequency.linearRampToValueAtTime(freq*0.88,now+dur);
+    gain.gain.setValueAtTime(0,now);
+    gain.gain.linearRampToValueAtTime(0.1,now+0.4);
+    gain.gain.setValueAtTime(0.1,now+dur*0.6);
+    gain.gain.linearRampToValueAtTime(0,now+dur);
+    osc.start(now);osc.stop(now+dur);_activeNode=osc;
+
+  }else if(type==='hold'){
+    /*
+      Hold: matches the meeting point of inhale and exhale.
+      Inhale rises to 196Hz (G3), exhale starts at 165Hz (E3).
+      Hold uses two detuned sines at 196Hz + 196.6Hz — the same
+      chorus texture as the inhale — held steady at that peak frequency.
+      Soft volume, slow fade in and out, no pitch movement.
+    */
+    var o1=ctx.createOscillator(),o2=ctx.createOscillator();
+    var g1=ctx.createGain(),g2=ctx.createGain(),master=ctx.createGain();
+    o1.type='sine';o1.frequency.value=196;
+    o2.type='sine';o2.frequency.value=196.6;
+    o1.connect(g1);o2.connect(g2);
+    g1.gain.value=0.5;g2.gain.value=0.5;
+    g1.connect(master);g2.connect(master);
+    master.connect(ctx.destination);
+    master.gain.setValueAtTime(0,now);
+    master.gain.linearRampToValueAtTime(0.09,now+dur*0.3);
+    master.gain.setValueAtTime(0.09,now+dur*0.7);
+    master.gain.linearRampToValueAtTime(0,now+dur);
+    o1.start(now);o1.stop(now+dur);
+    o2.start(now);o2.stop(now+dur);
+    _activeNode=o1;
+
+  }else if(type==='hum'){
+    /*
+      Hum/Sigh: gentle sine with very mild slow vibrato (barely perceptible).
+      B2 123Hz — very low, resonant, chest-felt. Like a distant cello.
+      Long attack and fade, maximum softness.
+    */
+    var osc=ctx.createOscillator(),gain=ctx.createGain();
+    var lfo=ctx.createOscillator(),lfoG=ctx.createGain();
+    osc.connect(gain);gain.connect(ctx.destination);
+    osc.type='sine';osc.frequency.setValueAtTime(freq,now);
+    lfo.type='sine';lfo.frequency.value=3.0; /* very slow, barely audible wobble */
+    lfoG.gain.value=0.8;                     /* tiny frequency deviation ±0.8Hz */
+    lfo.connect(lfoG);lfoG.connect(osc.frequency);
+    gain.gain.setValueAtTime(0,now);
+    gain.gain.linearRampToValueAtTime(0.08,now+0.6);
+    gain.gain.setValueAtTime(0.08,now+dur*0.7);
+    gain.gain.linearRampToValueAtTime(0,now+dur);
+    lfo.start(now);lfo.stop(now+dur);
+    osc.start(now);osc.stop(now+dur);_activeNode=osc;
+
+  }else if(type==='tick'){
+    /*
+      Countdown tick: very soft, brief sine at a calm mid pitch.
+      Much quieter than before — barely there, just enough to notice.
+    */
+    var osc=ctx.createOscillator(),gain=ctx.createGain();
+    osc.connect(gain);gain.connect(ctx.destination);
+    osc.type='sine';osc.frequency.setValueAtTime(freq,now);
+    gain.gain.setValueAtTime(0,now);
+    gain.gain.linearRampToValueAtTime(0.06,now+0.015);
+    gain.gain.linearRampToValueAtTime(0,now+0.1);
+    osc.start(now);osc.stop(now+0.12);_activeNode=osc;
+  }
+}
+
+function getSoundForPhase(label){
+  var l=label.toLowerCase();
+  if(l.indexOf('inhale')>=0||l.indexOf('belly')>=0||l.indexOf('ribs')>=0||l.indexOf('expand')>=0)
+    return{type:'inhale',freq:196};   /* G3 — open, airy */
+  if(l.indexOf('hold')>=0)
+    return{type:'hold',freq:55};     /* A1 — base of ocean hum layers */
+  if(l.indexOf('hum')>=0||l.indexOf('sigh')>=0)
+    return{type:'hum',freq:123};      /* B2 — low, resonant */
+  return{type:'exhale',freq:165};     /* E3 — grounding, releasing */
+}
+
+function playCountdownTick(n){
+  /* Gentle descending pitch: calm at 10, softer as it reaches 1 */
+  var freq=320-(10-n)*8;
+  playTone('tick',Math.max(180,freq),0.1);
+}
+
+
+
+function showHistory(){
+  switchHDTab('sessions');
+  show('history');
+}
+
+function switchHDTab(tab){
+  ['sessions','week','month'].forEach(function(t){
+    document.getElementById('hd-tab-'+t).classList.toggle('active',t===tab);
+    document.getElementById('hd-'+t).style.display=t===tab?'block':'none';
+  });
+  if(tab==='sessions') renderSessions();
+  else if(tab==='week') renderWeekChart();
+  else renderMonthChart();
+}
+
+
+
+
+
+function renderWeekChart(){
+  var history=loadHistory();
+  var chart=document.getElementById('data-chart-week');
+  var empty=document.getElementById('data-empty-week');
+  var summary=document.getElementById('data-summary-week');
+  var now=new Date(),dow=now.getDay(),monOff=dow===0?-6:1-dow;
+  var weekStart=new Date(now);weekStart.setHours(0,0,0,0);weekStart.setDate(now.getDate()+monOff);
+  var weekEnd=new Date(weekStart);weekEnd.setDate(weekStart.getDate()+7);
+  var days=[];
+  for(var i=0;i<7;i++){var d=new Date(weekStart);d.setDate(weekStart.getDate()+i);days.push({date:d,sessions:[]})}
+  history.forEach(function(s){var sd=new Date(s.ts);if(sd>=weekStart&&sd<weekEnd){var idx=Math.floor((sd-weekStart)/86400000);if(idx>=0&&idx<7)days[idx].sessions.push(s)}});
+  var total=days.reduce(function(a,d){return a+d.sessions.length},0);
+  if(!total){chart.innerHTML='';chart.style.display='none';empty.style.display='block';summary.innerHTML='';return;}
+  chart.style.display='block';empty.style.display='none';
+  var todayIdx=dow===0?6:dow-1;
+  var html='<div class="week-grid">';
+  days.forEach(function(day,i){
+    var isToday=i===todayIdx;
+    html+='<div><div class="week-col-label'+(isToday?' today-label':'')+'">'+DAY_SHORT[(i+1)%7]+'</div><div class="week-col-dots">';
+    if(!day.sessions.length){html+=dotHTML('empty','No session');}
+    else{day.sessions.slice(0,4).forEach(function(s){html+=dotHTML(s.energy,ENERGY_LABEL[s.energy]+' — '+s.drill)});}
+    html+='</div></div>';
+  });
+  html+='</div>';
+  chart.innerHTML=html;
+  summary.innerHTML=buildSummary(days.reduce(function(a,d){return a.concat(d.sessions)},[]),'This week');
+}
+
+function renderMonthChart(){
+  var history=loadHistory();
+  var chart=document.getElementById('data-chart-month');
+  var empty=document.getElementById('data-empty-month');
+  var summary=document.getElementById('data-summary-month');
+  var now=new Date(),monthStart=new Date(now.getFullYear(),now.getMonth(),1),monthEnd=new Date(now.getFullYear(),now.getMonth()+1,1);
+  var daysInMonth=new Date(now.getFullYear(),now.getMonth()+1,0).getDate();
+  var days=[];
+  for(var d=1;d<=daysInMonth;d++)days.push({day:d,sessions:[]});
+  history.forEach(function(s){var sd=new Date(s.ts);if(sd>=monthStart&&sd<monthEnd){var idx=sd.getDate()-1;if(idx>=0)days[idx].sessions.push(s)}});
+  var monthSessions=days.reduce(function(a,d){return a.concat(d.sessions)},[]);
+  if(!monthSessions.length){chart.innerHTML='';chart.style.display='none';empty.style.display='block';summary.innerHTML='';return;}
+  chart.style.display='block';empty.style.display='none';
+  var html='';
+  for(var i=0;i<days.length;i+=7){
+    var week=days.slice(i,i+7);
+    html+='<div class="chart-row"><div class="chart-row-label">'+week[0].day+'</div><div class="chart-dots">';
+    week.forEach(function(day){
+      if(!day.sessions.length){html+=dotHTML('empty',MONTH_SHORT[now.getMonth()]+' '+day.day);}
+      else{var top=day.sessions[day.sessions.length-1];html+=dotHTML(top.energy,ENERGY_LABEL[top.energy]+' — '+MONTH_SHORT[now.getMonth()]+' '+day.day+(day.sessions.length>1?' ('+day.sessions.length+' sessions)':''));}
+    });
+    html+='</div></div>';
+  }
+  chart.innerHTML=html;
+  summary.innerHTML=buildSummary(monthSessions,MONTH_SHORT[now.getMonth()]);
+}
+
+function dotHTML(energy,title){
+  return'<div class="chart-dot '+energy+'" title="'+title+'"></div>';
+}
+
+function buildSummary(sessions){
+  if(!sessions.length)return'';
+  var c={flare:0,moderate:0,good:0};
+  sessions.forEach(function(s){if(c[s.energy]!==undefined)c[s.energy]++});
+  return'<div class="summary-card"><div class="summary-num">'+sessions.length+'</div><div class="summary-label">Sessions</div></div>'
+    +'<div class="summary-card"><div class="summary-num" style="color:'+ENERGY_COLOUR.flare+'">'+c.flare+'</div><div class="summary-label"><span class="summary-dot flare-dot"></span>Flare</div></div>'
+    +'<div class="summary-card"><div class="summary-num" style="color:'+ENERGY_COLOUR.moderate+'">'+c.moderate+'</div><div class="summary-label"><span class="summary-dot moderate-dot"></span>Moderate</div></div>'
+    +'<div class="summary-card"><div class="summary-num" style="color:'+ENERGY_COLOUR.good+'">'+c.good+'</div><div class="summary-label"><span class="summary-dot good-dot"></span>Good</div></div>';
+}
+
+function toggleMenu(){
+  var btn=document.getElementById('menu-btn');
+  var dd=document.getElementById('menu-dropdown');
+  var open=dd.classList.toggle('open');
+  btn.classList.toggle('open',open);
+}
+function menuGo(fn){
+  document.getElementById('menu-dropdown').classList.remove('open');
+  document.getElementById('menu-btn').classList.remove('open');
+  fn();
+}
+document.addEventListener('click',function(e){
+  var wrap=document.querySelector('.menu-wrap');
+  if(wrap&&!wrap.contains(e.target)){
+    document.getElementById('menu-dropdown').classList.remove('open');
+    document.getElementById('menu-btn').classList.remove('open');
+  }
+});
+
+function showResources(){show('resources')}
+
+function switchResTab(tab){
+  document.getElementById('res-tab-library').classList.toggle('active', tab==='library');
+  document.getElementById('res-library').style.display = tab==='library' ? 'block' : 'none';
+}
+
+function toggleLibCard(header){
+  var card = header.parentElement;
+  card.classList.toggle('open');
+}
+
+function filterLibrary(){
+  var q=document.getElementById('lib-search').value.toLowerCase();
+  var cards=document.querySelectorAll('.lib-card');
+  cards.forEach(function(c){
+    var title=c.querySelector('.lib-card-title').textContent.toLowerCase();
+    var desc=c.querySelector('.lib-desc')?c.querySelector('.lib-desc').textContent.toLowerCase():'';
+    c.style.display=(!q||title.indexOf(q)>=0||desc.indexOf(q)>=0)?'':'none';
+  });
+  var cats=document.querySelectorAll('.lib-category');
+  cats.forEach(function(cat){
+    var visible=Array.from(cat.querySelectorAll('.lib-card')).some(function(c){return c.style.display!=='none'});
+    cat.style.display=visible?'':'none';
+  });
+}
+
+/* ═══════════════════════════════════════════════════
+   REMINDERS
+═══════════════════════════════════════════════════ */
+function addMins(hhmm,mins){
+  var p=hhmm.split(':'),t=parseInt(p[0])*60+parseInt(p[1])+mins;
+  t=((t%1440)+1440)%1440;
+  var h=Math.floor(t/60),m=t%60;
+  return(h<10?'0':'')+h+':'+(m<10?'0':'')+m;
+}
+
+function fmtTime(hhmm){
+  var p=hhmm.split(':'),h=parseInt(p[0]),m=parseInt(p[1]),ap=h>=12?'pm':'am';
+  h=h%12||12;
+  return h+(m?':'+(m<10?'0':'')+m:'')+' '+ap;
+}
+
+function updateReminders(){
+  var w=document.getElementById('wake-input').value;
+  var s=document.getElementById('sleep-input').value;
+  if(w){
+    document.getElementById('wake-display').textContent=fmtTime(w);
+    document.getElementById('morning-display').textContent=fmtTime(addMins(w,30));
+    document.getElementById('wake-result').style.display='block';
+  }
+  if(s){
+    document.getElementById('sleep-display').textContent=fmtTime(s);
+    document.getElementById('evening-display').textContent=fmtTime(addMins(s,-15));
+    document.getElementById('sleep-result').style.display='block';
+  }
+}
+
+
+
+function loadRemindersFromStorage(){
+  try{var r=localStorage.getItem('evolve_reminders');return r?JSON.parse(r):null;}
+  catch(e){return null;}
+}
+
+function showReminders(){
+  var data=loadRemindersFromStorage();
+  if(data){
+    if(data.wake)document.getElementById('wake-input').value=data.wake;
+    if(data.sleep)document.getElementById('sleep-input').value=data.sleep;
+  }
+  updateReminders();
+  show('reminders');
+}
+
+var _checker=null,_fired={morning:null,evening:null};
+
+function startReminderChecker(){
+  if(_checker)clearInterval(_checker);
+  checkReminders();
+  _checker=setInterval(checkReminders,30000);
+}
+
+function checkReminders(){
+  var data=loadRemindersFromStorage();
+  if(!data)return;
+  var now=new Date();
+  var hhmm=(now.getHours()<10?'0':'')+now.getHours()+':'+(now.getMinutes()<10?'0':'')+now.getMinutes();
+  var today=now.toDateString();
+  if(data.morning&&hhmm===data.morning&&_fired.morning!==today){
+    _fired.morning=today;
+    showBanner('Good morning 🌅','Time for your morning breathwork — '+fmtTime(data.morning));
+  }
+  if(data.evening&&hhmm===data.evening&&_fired.evening!==today){
+    _fired.evening=today;
+    showBanner('Wind-down time 🌙','Start your evening breathwork — '+fmtTime(data.evening));
+  }
+}
+
+
+function showBanner(title,sub){
+  document.getElementById('banner-title').textContent=title;
+  document.getElementById('banner-sub').textContent=sub;
+  document.getElementById('reminder-banner').classList.add('show');
+  setTimeout(dismissBanner,12000);
+}
+function dismissBanner(){
+  document.getElementById('reminder-banner').classList.remove('show');
+}
+
+
+function showSuggest(){show('suggest')}
+function trackSuggest(){/* future analytics hook */}
+function makeCrumbs(items){var labels={flare:'🔴 Flare Day',moderate:'🟠 Moderate Day',good:'🟢 Good Day'};return items.map(function(x,i){var label=labels[x]||x,active=i===items.length-1?' active':'',sep=i<items.length-1?'<span class="crumb-dot"></span>':'';return'<span class="crumb'+active+'">'+label+'</span>'+sep}).join('')}
+
+
+/* ═══════════════════════════════════════════════════
+   FIREBASE & AUTH
+═══════════════════════════════════════════════════ */
+var firebaseConfig={
+  apiKey:"AIzaSyBCZuCM-8fI27Iu6v4zE4AT3J2DA0IgM0w",
+  authDomain:"evolvehuman01-cmd.github.io",
+  projectId:"evolve-breath",
+  storageBucket:"evolve-breath.firebasestorage.app",
+  messagingSenderId:"209396409999",
+  appId:"1:209396409999:web:356630ecc415c32c2532fa"
+};
+firebase.initializeApp(firebaseConfig);
+var auth=firebase.auth();
+var db=firebase.firestore();
+var currentUser=null;
+
+/* Auth state listener */
+auth.onAuthStateChanged(function(user){
+  if(user){
+    currentUser=user;
+    onUserLoggedIn(user);
+  } else {
+    currentUser=null;
+    onUserLoggedOut();
+  }
+});
+
+function onUserLoggedIn(user){
+  document.getElementById('app-header').style.display='flex';
+  document.getElementById('screen-auth').classList.remove('active');
+  /* Update profile button with initial */
+  var initial=(user.displayName||user.email||'?')[0].toUpperCase();
+  document.getElementById('profile-btn').textContent=initial;
+  /* Load user profile from Firestore */
+  loadUserProfile(user);
+  /* Migrate any localStorage sessions to Firestore */
+  migrateLocalSessions(user.uid);
+  /* Show energy screen */
+  show('energy');
+}
+
+function onUserLoggedOut(){
+  document.getElementById('app-header').style.display='none';
+  /* Hide all screens and show auth */
+  var all=document.querySelectorAll('.screen');
+  for(var i=0;i<all.length;i++) all[i].classList.remove('active');
+  document.getElementById('screen-auth').classList.add('active');
+}
+
+/* ── SIGN IN ── */
+function doSignIn(){
+  var email=document.getElementById('si-email').value.trim();
+  var pass=document.getElementById('si-password').value;
+  var errEl=document.getElementById('si-error');
+  var loadEl=document.getElementById('si-loading');
+  errEl.classList.remove('show');
+  if(!email||!pass){showAuthError('si-error','Please fill in all fields.');return;}
+  loadEl.classList.add('show');
+  document.querySelector('#auth-signin .auth-btn').disabled=true;
+  auth.signInWithEmailAndPassword(email,pass)
+    .catch(function(e){
+      loadEl.classList.remove('show');
+      document.querySelector('#auth-signin .auth-btn').disabled=false;
+      showAuthError('si-error',friendlyAuthError(e.code));
+    });
+}
+
+/* ── SIGN UP ── */
+function doSignUp(){
+  var name=document.getElementById('su-name').value.trim();
+  var email=document.getElementById('su-email').value.trim();
+  var pass=document.getElementById('su-password').value;
+  var errEl=document.getElementById('su-error');
+  var loadEl=document.getElementById('su-loading');
+  errEl.classList.remove('show');
+  if(!name||!email||!pass){showAuthError('su-error','Please fill in all fields.');return;}
+  if(pass.length<6){showAuthError('su-error','Password must be at least 6 characters.');return;}
+  loadEl.classList.add('show');
+  document.querySelector('#auth-signup .auth-btn').disabled=true;
+  auth.createUserWithEmailAndPassword(email,pass)
+    .then(function(cred){
+      return cred.user.updateProfile({displayName:name}).then(function(){
+        return createUserProfile(cred.user,name);
+      });
+    })
+    .catch(function(e){
+      loadEl.classList.remove('show');
+      document.querySelector('#auth-signup .auth-btn').disabled=false;
+      showAuthError('su-error',friendlyAuthError(e.code));
+    });
+}
+
+/* ── GOOGLE SIGN IN ── */
+function doGoogleSignIn(){
+  var provider=new firebase.auth.GoogleAuthProvider();
+  auth.signInWithPopup(provider)
+    .then(function(result){
+      /* Create profile if first time */
+      var user=result.user;
+      db.collection('users').doc(user.uid).get().then(function(doc){
+        if(!doc.exists) createUserProfile(user, user.displayName||user.email.split('@')[0]);
+      });
+    })
+    .catch(function(e){
+      showAuthError('si-error',friendlyAuthError(e.code));
+    });
+}
+
+/* ── SIGN OUT ── */
+function doSignOut(){
+  if(!confirm('Sign out of Evolve:Breath?'))return;
+  auth.signOut();
+}
+
+/* ── HELPERS ── */
+function showAuthPanel(panel){
+  document.getElementById('auth-signin').style.display=panel==='signin'?'block':'none';
+  document.getElementById('auth-signup').style.display=panel==='signup'?'block':'none';
+}
+
+function showAuthError(id,msg){
+  var el=document.getElementById(id);
+  el.textContent=msg;
+  el.classList.add('show');
+}
+
+function friendlyAuthError(code){
+  var map={
+    'auth/user-not-found':'No account found with that email.',
+    'auth/wrong-password':'Incorrect password. Please try again.',
+    'auth/email-already-in-use':'An account with this email already exists.',
+    'auth/invalid-email':'Please enter a valid email address.',
+    'auth/weak-password':'Password must be at least 6 characters.',
+    'auth/popup-closed-by-user':'Sign-in cancelled.',
+    'auth/network-request-failed':'Network error. Please check your connection.',
+    'auth/invalid-credential':'Incorrect email or password.'
+  };
+  return map[code]||'Something went wrong. Please try again.';
+}
+
+/* ── FIRESTORE PROFILE ── */
+function createUserProfile(user,name){
+  return db.collection('users').doc(user.uid).set({
+    displayName: name,
+    email: user.email,
+    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+    reminders: {morning:null,evening:null}
+  },{merge:true});
+}
+
+function loadUserProfile(user){
+  db.collection('users').doc(user.uid).get().then(function(doc){
+    var data=doc.exists?doc.data():{};
+    /* Update profile screen */
+    var name=data.displayName||user.displayName||'You';
+    document.getElementById('profile-name-title').textContent=name;
+    document.getElementById('profile-display-name').textContent=name;
+    document.getElementById('profile-email').textContent=user.email||'—';
+    var since=user.metadata.creationTime?new Date(user.metadata.creationTime).toLocaleDateString([],{month:'long',year:'numeric'}):'—';
+    document.getElementById('profile-since').textContent=since;
+    /* Reminders */
+    var rem=data.reminders||{};
+    document.getElementById('profile-morning').textContent=rem.morning?fmtTime(rem.morning):'Not set';
+    document.getElementById('profile-evening').textContent=rem.evening?fmtTime(rem.evening):'Not set';
+    /* Load session stats */
+    loadSessionStats(user.uid);
+  });
+}
+
+function loadSessionStats(uid){
+  db.collection('users').doc(uid).collection('sessions')
+    .orderBy('ts','desc').limit(100)
+    .get().then(function(snap){
+      var sessions=[];
+      snap.forEach(function(d){sessions.push(d.data())});
+      /* Total */
+      document.getElementById('stat-total').textContent=sessions.length;
+      /* This week */
+      var now=new Date(),weekAgo=new Date(now-7*86400000);
+      var thisWeek=sessions.filter(function(s){return new Date(s.ts)>=weekAgo}).length;
+      document.getElementById('stat-this-week').textContent=thisWeek;
+      /* Streak — consecutive days with at least one session */
+      var streak=calcStreak(sessions);
+      document.getElementById('stat-streak').textContent=streak;
+    });
+}
+
+function calcStreak(sessions){
+  if(!sessions.length)return 0;
+  var days=new Set(sessions.map(function(s){
+    return new Date(s.ts).toDateString();
+  }));
+  var streak=0,d=new Date();
+  d.setHours(0,0,0,0);
+  while(days.has(d.toDateString())){
+    streak++;
+    d.setDate(d.getDate()-1);
+  }
+  return streak;
+}
+
+/* ── SESSION SYNC ── */
+/* Override saveSession to write to Firestore */
+function saveSession(){
+  var entry={
+    drill:S.drill.name, rounds:S.drill.rounds,
+    goal:S.goal, energy:S.energy,
+    timeLabel:S.timeLabel, ts:Date.now()
+  };
+  /* Always save to localStorage as backup */
+  var h=loadHistory();
+  h.unshift(entry);
+  if(h.length>100)h=h.slice(0,100);
+  try{localStorage.setItem('evolve_history',JSON.stringify(h));}catch(e){}
+  /* Save to Firestore if logged in */
+  if(currentUser){
+    db.collection('users').doc(currentUser.uid)
+      .collection('sessions').add(entry)
+      .catch(function(e){console.warn('Session sync failed:',e)});
+  }
+}
+
+/* Override loadHistory to read from Firestore */
+function loadHistory(){
+  try{var r=localStorage.getItem('evolve_history');return r?JSON.parse(r):[]}
+  catch(e){return[]}
+}
+
+/* Firestore history for display — merges local + cloud */
+function loadHistoryForDisplay(callback){
+  if(!currentUser){callback(loadHistory());return;}
+  db.collection('users').doc(currentUser.uid).collection('sessions')
+    .orderBy('ts','desc').limit(100)
+    .get().then(function(snap){
+      var sessions=[];
+      snap.forEach(function(d){sessions.push(d.data())});
+      callback(sessions);
+    }).catch(function(){callback(loadHistory())});
+}
+
+/* Migrate localStorage sessions to Firestore on first login */
+function migrateLocalSessions(uid){
+  var local=loadHistory();
+  if(!local.length)return;
+  /* Check if already migrated */
+  db.collection('users').doc(uid).get().then(function(doc){
+    if(doc.exists&&doc.data().migrated)return;
+    var batch=db.batch();
+    local.forEach(function(s){
+      var ref=db.collection('users').doc(uid).collection('sessions').doc();
+      batch.set(ref,s);
+    });
+    batch.commit().then(function(){
+      db.collection('users').doc(uid).update({migrated:true});
+      console.log('Migrated '+local.length+' sessions to Firestore');
+    });
+  });
+}
+
+/* Override reminders to sync with Firestore */
+function saveReminders(){
+  var w=document.getElementById('wake-input').value;
+  var s=document.getElementById('sleep-input').value;
+  var data={wake:w,sleep:s,morning:w?addMins(w,30):null,evening:s?addMins(s,-15):null};
+  try{localStorage.setItem('evolve_reminders',JSON.stringify(data));}catch(e){}
+  /* Sync to Firestore */
+  if(currentUser){
+    db.collection('users').doc(currentUser.uid).update({
+      'reminders.morning':data.morning,
+      'reminders.evening':data.evening,
+      'reminders.wake':w,
+      'reminders.sleep':s
+    }).catch(function(){});
+  }
+  var el=document.getElementById('save-confirm');
+  el.classList.add('show');
+  setTimeout(function(){el.classList.remove('show');},3500);
+  startReminderChecker();
+  /* Refresh profile */
+  if(currentUser) loadUserProfile(currentUser);
+}
+
+/* Update renderSessions to use Firestore */
+function renderSessions(){
+  var body=document.getElementById('history-body');
+  var countEl=document.getElementById('history-count');
+  body.innerHTML='<div class="auth-loading show">Loading sessions…</div>';
+  loadHistoryForDisplay(function(history){
+    countEl.textContent=history.length?history.length+' session'+(history.length===1?'':'s'):'';
+    if(!history.length){
+      body.innerHTML='<div class="history-empty"><div class="history-empty-icon">🌿</div>No sessions yet. Complete a practice and it will appear here.</div>';
+      return;
+    }
+    var html='<div class="history-list">';
+    history.forEach(function(e){
+      var d=new Date(e.ts),diff=Math.floor((Date.now()-e.ts)/86400000);
+      var ds=diff===0?'Today, '+d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})
+            :diff===1?'Yesterday, '+d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})
+            :diff<7?d.toLocaleDateString([],{weekday:'long'})+', '+d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})
+            :d.toLocaleDateString([],{day:'numeric',month:'short',year:'numeric'});
+      var el=ENERGY_LABEL[e.energy]||e.energy;
+      html+='<div class="history-entry">'
+        +'<div class="history-entry-top"><div class="history-drill">'+e.drill+'</div><div class="history-date">'+ds+'</div></div>'
+        +'<div class="history-tags">'
+        +'<span class="tag '+e.energy+'-tag">'+({flare:'🔴',moderate:'🟠',good:'🟢'}[e.energy]||'')+' '+el+'</span>'
+        +'<span class="tag">'+(e.goal||'')+'</span>'
+        +'<span class="tag">'+(e.timeLabel||'')+'</span>'
+        +'<span class="tag">'+(e.rounds||'')+'</span>'
+        +'</div></div>';
+    });
+    html+='</div><button class="history-clear-btn" onclick="clearHistory()">Clear history</button>';
+    body.innerHTML=html;
+  });
+}
+
+function clearHistory(){
+  if(!confirm('Clear all session history?'))return;
+  try{localStorage.removeItem('evolve_history');}catch(e){}
+  if(currentUser){
+    /* Delete all Firestore sessions */
+    db.collection('users').doc(currentUser.uid).collection('sessions')
+      .get().then(function(snap){
+        var batch=db.batch();
+        snap.forEach(function(d){batch.delete(d.ref)});
+        return batch.commit();
+      }).then(function(){renderSessions()});
+    return;
+  }
+  renderSessions();
+}
+
+if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){})})}
+(function(){if(loadRemindersFromStorage())startReminderChecker()})();
+</script>
+</body>
+</html>
