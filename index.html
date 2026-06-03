@@ -10,10 +10,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Evolve:Breath">
 <link rel="manifest" href="manifest.json">
-<!-- Firebase -->
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+
 <link rel="apple-touch-icon" href="icon-192.png">
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Poppins:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
@@ -382,6 +379,61 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
 .signout-btn{width:100%;background:transparent;color:#6e6e73;border:1.5px solid #e2e2e8;border-radius:50px;padding:14px;font-family:'Poppins',sans-serif;font-size:14px;cursor:pointer;transition:all .2s;margin-top:8px}
 .signout-btn:hover{border-color:#FF8A80;color:#E53935}
 .privacy-text{font-size:11px;color:#6e6e73;line-height:1.7;text-align:center;padding:0 8px;font-style:italic}
+
+/* ── ONBOARDING ───────────────────────────────────── */
+.onboard-screen{display:flex;flex-direction:column;min-height:100vh;padding:48px 24px 32px;text-align:center}
+.onboard-progress{display:flex;gap:6px;justify-content:center;margin-bottom:40px}
+.onboard-dot{width:8px;height:8px;border-radius:50%;background:#e2e2e8;transition:background .3s}
+.onboard-dot.active{background:#fd6f15;width:24px;border-radius:4px}
+.onboard-visual{font-size:72px;margin-bottom:28px;line-height:1}
+.onboard-tag{display:inline-block;font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:#fd6f15;background:#fef0e6;padding:4px 12px;border-radius:20px;margin-bottom:16px;font-family:'Poppins',sans-serif}
+.onboard-title{font-family:'Montserrat',sans-serif;font-size:26px;font-weight:600;color:#2f354a;line-height:1.25;margin-bottom:14px}
+.onboard-body{font-size:15px;color:#6e6e73;line-height:1.75;font-weight:300;max-width:340px;margin:0 auto;flex:1}
+.onboard-actions{display:flex;flex-direction:column;gap:10px;margin-top:32px}
+.onboard-next{background:#fd6f15;color:white;border:none;border-radius:50px;padding:16px;font-family:'Poppins',sans-serif;font-size:15px;font-weight:500;cursor:pointer;transition:background .2s}
+.onboard-next:hover{background:#e05c0e}
+.onboard-skip{background:none;border:none;color:#6e6e73;font-family:'Poppins',sans-serif;font-size:13px;cursor:pointer;padding:8px;text-decoration:underline;text-underline-offset:3px}
+
+/* ── SOUND SELECTOR ───────────────────────────────── */
+.sound-selector{background:white;border:1.5px solid #e2e2e8;border-radius:20px;padding:20px;margin-bottom:20px}
+.sound-selector-title{font-family:'Montserrat',sans-serif;font-size:14px;font-weight:600;color:#2f354a;margin-bottom:4px}
+.sound-selector-sub{font-size:12px;color:#6e6e73;margin-bottom:16px}
+.sound-options{display:flex;flex-direction:column;gap:8px}
+.sound-option{display:flex;align-items:center;gap:12px;padding:12px 14px;border:1.5px solid #e2e2e8;border-radius:12px;cursor:pointer;transition:all .2s;background:white}
+.sound-option.selected{border-color:#fd6f15;background:#fef0e6}
+.sound-option-icon{font-size:22px;line-height:1;flex-shrink:0}
+.sound-option-text{flex:1;text-align:left}
+.sound-option-name{font-size:13px;font-weight:500;color:#2f354a;font-family:'Poppins',sans-serif}
+.sound-option-desc{font-size:11px;color:#6e6e73;margin-top:2px}
+.sound-option-check{width:20px;height:20px;border-radius:50%;border:2px solid #e2e2e8;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:11px;transition:all .2s}
+.sound-option.selected .sound-option-check{background:#fd6f15;border-color:#fd6f15;color:white}
+
+/* ── PRACTICE SCREEN CLEAN ────────────────────────── */
+.practice-clean{display:flex;flex-direction:column;align-items:center;min-height:80vh;padding-top:8px}
+.practice-header{width:100%;display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.practice-drill-label{font-size:13px;color:#6e6e73;font-weight:400;text-align:center;flex:1}
+.practice-arc-wrap{position:relative;width:80vw;max-width:300px;height:80vw;max-height:300px;margin:0 auto 24px}
+.practice-arc-svg{position:absolute;inset:0;width:100%;height:100%;transform:rotate(-90deg)}
+.arc-track{fill:none;stroke:#f5f5f2;stroke-width:4}
+.arc-progress{fill:none;stroke:#fd6f15;stroke-width:4;stroke-linecap:round;transition:stroke-dashoffset 1s linear,stroke .4s ease}
+.practice-post{width:100%;display:flex;flex-direction:column;align-items:center;gap:12px;margin-top:4px}
+.practice-rounds-label{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:#6e6e73;font-family:'Poppins',sans-serif}
+
+/* SUGGEST EMBED */
+.suggest-embed-wrap{
+  width:100%;
+  border-radius:16px;
+  overflow:hidden;
+  border:1.5px solid #e2e2e8;
+  margin-bottom:16px;
+  background:white;
+}
+.suggest-iframe{
+  width:100%;
+  height:600px;
+  border:none;
+  display:block;
+}
 </style>
 </head>
 <body>
@@ -414,8 +466,74 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
     <button class="profile-btn" id="profile-btn" onclick="show('profile')" title="Your profile">?</button>
   </div>
 
+  <!-- ONBOARDING (shown on first visit only) -->
+  <div class="screen active" id="screen-onboard">
+
+    <!-- Slide 1 -->
+    <div class="onboard-screen" id="ob1">
+      <div class="onboard-progress">
+        <div class="onboard-dot active" id="ob-dot-1"></div>
+        <div class="onboard-dot" id="ob-dot-2"></div>
+        <div class="onboard-dot" id="ob-dot-3"></div>
+      </div>
+      <div class="onboard-visual">🌿</div>
+      <div class="onboard-tag">Evolve:Human</div>
+      <div class="onboard-title">Built for people who don't fit traditional moulds</div>
+      <div class="onboard-body">
+        Evolve:Breath is a clinical breathwork tool created by Evolve:Human Health &amp; Fitness — coaches who specialise in working with clients that conventional training leaves behind.<br><br>
+        If you live with CFS/ME, this was made for you.
+      </div>
+      <div class="onboard-actions">
+        <button class="onboard-next" onclick="nextOnboard(2)">Next</button>
+        <button class="onboard-skip" onclick="finishOnboard()">Skip intro</button>
+      </div>
+    </div>
+
+    <!-- Slide 2 -->
+    <div class="onboard-screen" id="ob2" style="display:none">
+      <div class="onboard-progress">
+        <div class="onboard-dot" id="ob-dot-1b"></div>
+        <div class="onboard-dot active" id="ob-dot-2b"></div>
+        <div class="onboard-dot" id="ob-dot-3b"></div>
+      </div>
+      <div class="onboard-visual">⚡</div>
+      <div class="onboard-tag">How it works</div>
+      <div class="onboard-title">Paced to your energy, not against it</div>
+      <div class="onboard-body">
+        Every session begins with a simple question — how is your energy today?<br><br>
+        <strong style="color:#2f354a">Flare day.</strong> Moderate day. Good day.<br><br>
+        Your answer unlocks only the practices appropriate for that state. No guessing. No pushing through. Just breathwork that meets you exactly where you are.
+      </div>
+      <div class="onboard-actions">
+        <button class="onboard-next" onclick="nextOnboard(3)">Next</button>
+        <button class="onboard-skip" onclick="finishOnboard()">Skip intro</button>
+      </div>
+    </div>
+
+    <!-- Slide 3 -->
+    <div class="onboard-screen" id="ob3" style="display:none">
+      <div class="onboard-progress">
+        <div class="onboard-dot" id="ob-dot-1c"></div>
+        <div class="onboard-dot" id="ob-dot-2c"></div>
+        <div class="onboard-dot active" id="ob-dot-3c"></div>
+      </div>
+      <div class="onboard-visual">🔬</div>
+      <div class="onboard-tag">The science</div>
+      <div class="onboard-title">22 evidence-based drills. One intention.</div>
+      <div class="onboard-body">
+        Every practice in this app is selected for its specific effect on the autonomic nervous system — the system most disrupted by CFS/ME.<br><br>
+        Down-regulation. Cognitive calming. Sleep support. Movement prep. Recovery.<br><br>
+        Science-backed breathwork, made accessible for low-energy states.
+      </div>
+      <div class="onboard-actions">
+        <button class="onboard-next" onclick="finishOnboard()">Get started</button>
+      </div>
+    </div>
+
+  </div>
+
   <!-- AUTH SCREEN -->
-  <div class="screen active" id="screen-auth">
+  <div class="screen" id="screen-auth">
     <div class="auth-wrap">
       <div class="auth-logo">🌿</div>
       <div class="auth-title">Evolve:Breath</div>
@@ -566,36 +684,51 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
 
   <!-- SCREEN 5: Practice -->
   <div class="screen" id="screen-practice">
-    <button class="back-btn" onclick="stopPractice()">← End Practice</button>
-    <div class="practice-wrap">
-      <div class="practice-top-row">
-        <div class="paused-badge" id="paused-badge">Paused</div>
+    <div class="practice-clean">
+
+      <!-- Header row: back + drill name + sound toggle -->
+      <div class="practice-header">
+        <button class="back-btn" onclick="stopPractice()" style="margin-bottom:0;padding:4px 0">← End</button>
+        <div class="practice-drill-label" id="practice-drill-name"></div>
         <button class="mute-btn" id="mute-btn" onclick="toggleMute()" title="Toggle sound">🔔</button>
       </div>
-      <div class="practice-drill-name" id="practice-drill-name"></div>
-      <div class="practice-rounds-total" id="practice-rounds-total"></div>
-      <button class="breath-btn" id="breath-btn" onclick="circleTapped()">
-        <span class="pulse-ring"></span>
-        <span class="pulse-ring"></span>
-        <span class="pulse-ring"></span>
-        <span class="breath-content">
-          <span class="b-phase" id="b-phase">Begin</span>
-          <span class="b-num"   id="b-num"></span>
-          <span class="b-unit"  id="b-unit">Tap to start</span>
-        </span>
-      </button>
+
+      <!-- Paused badge -->
+      <div class="paused-badge" id="paused-badge">Paused</div>
+
+      <!-- THE CIRCLE — large, dominant -->
+      <div class="practice-arc-wrap">
+        <!-- Arc progress ring around circle -->
+        <svg class="practice-arc-svg" viewBox="0 0 100 100">
+          <circle class="arc-track"    cx="50" cy="50" r="47"/>
+          <circle class="arc-progress" cx="50" cy="50" r="47"
+            id="arc-circle"
+            stroke-dasharray="295.3"
+            stroke-dashoffset="295.3"/>
+        </svg>
+        <!-- The breath button sits inside the arc wrap -->
+        <button class="breath-btn" id="breath-btn" onclick="circleTapped()" style="position:absolute;inset:8px;width:auto;height:auto;margin:0">
+          <span class="breath-content">
+            <span class="b-phase" id="b-phase">Begin</span>
+            <span class="b-num"   id="b-num"></span>
+            <span class="b-unit"  id="b-unit">Tap to start</span>
+          </span>
+        </button>
+      </div>
+
+      <!-- Instructions (shown before session starts) -->
       <div class="instructions-card" id="instructions-card">
         <div class="instructions-title">How to breathe</div>
         <div class="instructions-text" id="instructions-text"></div>
       </div>
-      <div class="timer-bar-wrap"><div class="timer-bar" id="timer-bar"></div></div>
-      <div class="round-tracker">
-        <div class="round-label">Rounds</div>
+
+      <!-- Post-start: rounds and pause (hidden until started) -->
+      <div class="practice-post" id="practice-post" style="display:none">
+        <div class="practice-rounds-label" id="practice-rounds-total"></div>
         <div class="round-dots" id="round-dots"></div>
+        <button class="btn-secondary" id="pause-btn" onclick="togglePause()" style="display:none;margin-top:8px">Pause</button>
       </div>
-      <div class="practice-controls">
-        <button class="btn-secondary" id="pause-btn" onclick="togglePause()" style="display:none">Pause</button>
-      </div>
+
     </div>
   </div>
 
@@ -661,8 +794,58 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
   <div class="screen" id="screen-reminders">
     <button class="back-btn" onclick="show('energy')">← Back</button>
     <div class="section-label">Daily practice</div>
-    <div class="screen-title">Reminders</div>
-    <div class="screen-subtitle">Set your wake and sleep times and we'll calculate exactly when to do your breathwork.</div>
+    <div class="screen-title">Reminders &amp; Sound</div>
+    <div class="screen-subtitle">Manage your reminder times and ambient sound preference.</div>
+
+    <!-- Sound selector -->
+    <div class="sound-selector">
+      <div class="sound-selector-title">Ambient sound</div>
+      <div class="sound-selector-sub">Plays softly during practice. Off by default.</div>
+      <div class="sound-options" id="sound-options">
+        <div class="sound-option selected" onclick="selectSound('off')" id="sound-off">
+          <span class="sound-option-icon">🔇</span>
+          <div class="sound-option-text">
+            <div class="sound-option-name">Off</div>
+            <div class="sound-option-desc">Silent practice</div>
+          </div>
+          <div class="sound-option-check">✓</div>
+        </div>
+        <div class="sound-option" onclick="selectSound('rain')" id="sound-rain">
+          <span class="sound-option-icon">🌧</span>
+          <div class="sound-option-text">
+            <div class="sound-option-name">Soft rain</div>
+            <div class="sound-option-desc">Gentle, continuous, calming</div>
+          </div>
+          <div class="sound-option-check"></div>
+        </div>
+        <div class="sound-option" onclick="selectSound('bowls')" id="sound-bowls">
+          <span class="sound-option-icon">🎵</span>
+          <div class="sound-option-text">
+            <div class="sound-option-name">Singing bowls</div>
+            <div class="sound-option-desc">Resonant, meditative</div>
+          </div>
+          <div class="sound-option-check"></div>
+        </div>
+        <div class="sound-option" onclick="selectSound('drone')" id="sound-drone">
+          <span class="sound-option-icon">🌊</span>
+          <div class="sound-option-text">
+            <div class="sound-option-name">Warm drone</div>
+            <div class="sound-option-desc">Low tonal hum, deeply grounding</div>
+          </div>
+          <div class="sound-option-check"></div>
+        </div>
+        <div class="sound-option" onclick="selectSound('nature')" id="sound-nature">
+          <span class="sound-option-icon">🍃</span>
+          <div class="sound-option-text">
+            <div class="sound-option-name">Forest</div>
+            <div class="sound-option-desc">Birdsong and gentle breeze</div>
+          </div>
+          <div class="sound-option-check"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
     <div class="notice-warning">ⓘ Reminders only appear while the app is open. Use the times shown to set alarms in your phone's clock app for reliable daily reminders.</div>
     <div class="reminder-section">
       <div class="reminder-section-title">🌅 Morning</div>
@@ -1054,28 +1237,34 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
     <div class="screen-title">Suggest a Feature</div>
     <div class="screen-subtitle">Your experience with CFS/ME is what makes this app better. Every suggestion is read by the creator.</div>
 
-    <div class="suggest-card">
-      <div class="suggest-icon">💡</div>
-      <div class="suggest-body">
-        <div class="suggest-title">What would you like to see?</div>
-        <div class="suggest-desc">Tell us what would improve your breathwork practice — a new drill, a design change, a feature that's missing, or anything else.</div>
-        <div class="suggest-tags">
-          <span class="suggest-tag">Anonymous by default</span>
-          <span class="suggest-tag">Read by the creator</span>
-          <span class="suggest-tag">Informs future updates</span>
-        </div>
-        <a class="suggest-btn" href="https://forms.gle/kgX58kGhR3Pb7cLs5" target="_blank" onclick="trackSuggest()">
-          Open suggestion form
-          <span class="suggest-arrow">→</span>
-        </a>
-      </div>
+    <div class="suggest-tags" style="margin-bottom:16px;display:flex;gap:6px;flex-wrap:wrap">
+      <span class="suggest-tag">Anonymous by default</span>
+      <span class="suggest-tag">Read by the creator</span>
+      <span class="suggest-tag">Informs future updates</span>
+    </div>
+
+    <!-- Embedded Google Form -->
+    <div class="suggest-embed-wrap">
+      <iframe
+        class="suggest-iframe"
+        src="https://docs.google.com/forms/d/e/1FAIpQLSf04K4ac_355nsdZthA1WCgGSyF80P76bdYAYtBUhDWllWMIw/viewform?embedded=true"
+        frameborder="0"
+        marginheight="0"
+        marginwidth="0"
+        title="Suggest a feature">
+        Loading…
+      </iframe>
     </div>
 
     <div class="suggest-privacy">
-      Your suggestion is submitted directly to the creator via Google Forms. Email is optional and will only be used to follow up on your suggestion if needed. Suggestions are never shared publicly.
+      Submitted directly to Evolve:Human via Google Forms. Email is optional and only used to follow up if needed. Suggestions are never shared publicly.
     </div>
   </div>
 </div>
+<!-- Firebase SDKs — loaded synchronously before app JS -->
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 <script>
 var GOALS={
   flare:[
@@ -1406,12 +1595,14 @@ function setupPractice(drill){
   clearInterval(S.breathTimer);clearInterval(S.cdTimer);stopSound();
   S.totalRounds=parseRounds(drill.rounds);S.currentRound=0;
   S.phases=PHASE_PATTERNS[drill.name]||[{p:'Inhale',s:4},{p:'Exhale',s:4}];
-  S.phaseIdx=0;S.started=false;S.paused=false;
+  S.phaseIdx=0;S.lastPhaseWasInhale=false;S.started=false;S.paused=false;
   document.getElementById('practice-drill-name').textContent=drill.name;
   document.getElementById('practice-rounds-total').textContent=drill.rounds+' · '+S.timeLabel;
+  document.getElementById('practice-post').style.display='none';
+  setArcProgress(0);
   document.getElementById('instructions-text').textContent=drill.instr;
   document.getElementById('instructions-card').style.display='block';
-  document.getElementById('timer-bar').style.width='0%';
+  setArcProgress(0);
   document.getElementById('paused-badge').classList.remove('show');
   document.getElementById('pause-btn').style.display='none';
   var btn=document.getElementById('breath-btn');
@@ -1427,9 +1618,11 @@ function setCircle(phase,num,unit){document.getElementById('b-phase').textConten
 function circleTapped(){
   if(S.started)return;
   S.started=true;getCtx();
-  document.getElementById('breath-btn').disabled=true;
+  document.getElementById('breath-btn').disabled=false;
   document.getElementById('instructions-card').style.display='none';
+  document.getElementById('practice-post').style.display='flex';
   document.getElementById('pause-btn').style.display='inline-block';
+  startAmbient();
   startCountdown(10);
 }
 
@@ -1449,20 +1642,53 @@ function runPhase(){
   if(S.paused)return;
   var phase=S.phases[S.phaseIdx],total=S.phases.length;
   var p=phase.p.toLowerCase();
-  var isIn=p.indexOf('inhale')>=0||p.indexOf('belly')>=0||p.indexOf('ribs')>=0||p.indexOf('expand')>=0;
+  var isIn  = p.indexOf('inhale')>=0||p.indexOf('belly')>=0||p.indexOf('ribs')>=0||p.indexOf('expand')>=0;
+  var isHold= p.indexOf('hold')>=0;
+  var isEx  = !isIn && !isHold;
+
   setCircle(phase.p,phase.s,'seconds');
   var sound=getSoundForPhase(phase.p);
   playTone(sound.type,sound.freq,phase.s);
   var btn=document.getElementById('breath-btn');
-  /* Colour the circle for this phase */
-  var isHold=p.indexOf('hold')>=0;
+
+  /* Colour: inhale=amber, hold=lavender, exhale=slate blue */
   var phaseColour=isIn?'#FFB347':isHold?'#9B8EC4':'#6B8CAE';
   var phaseGrad='radial-gradient(ellipse at 35% 30%, '+phaseColour+', #2f354a)';
-  btn.style.setProperty('--phase-bg', phaseGrad);
   btn.style.background=phaseGrad;
-  btn.style.transition='transform '+phase.s+'s ease-in-out';
-  btn.style.transform=isIn?'scale(1.1)':isHold?'scale(1.1)':'scale(0.9)';
-  document.getElementById('timer-bar').style.width=((S.currentRound*total+S.phaseIdx)/(S.totalRounds*total)*100)+'%';
+
+  /* Size:
+     - Inhale: animate from small to large over the phase duration
+     - Exhale: animate from large to small over the phase duration
+     - Hold after inhale (or first hold): stay at large (scale 1.15)
+     - Hold after exhale: stay at small (scale 0.88)
+     We track S.lastPhaseWasInhale to know which hold state to use.
+  */
+  var targetScale;
+  if(isIn){
+    /* Start small, end large */
+    btn.style.transition='none';
+    btn.style.transform='scale(0.88)';
+    /* Force reflow so the starting scale is applied before transition */
+    void btn.offsetWidth;
+    btn.style.transition='transform '+phase.s+'s ease-in-out';
+    targetScale='scale(1.15)';
+    S.lastPhaseWasInhale=true;
+  } else if(isEx){
+    /* Start large, end small */
+    btn.style.transition='none';
+    btn.style.transform='scale(1.15)';
+    void btn.offsetWidth;
+    btn.style.transition='transform '+phase.s+'s ease-in-out';
+    targetScale='scale(0.88)';
+    S.lastPhaseWasInhale=false;
+  } else {
+    /* Hold — stay at whatever size the previous phase ended at */
+    btn.style.transition='background 0.4s ease';
+    targetScale=S.lastPhaseWasInhale?'scale(1.15)':'scale(0.88)';
+    btn.style.transform=targetScale;
+  }
+  if(targetScale && !isHold) btn.style.transform=targetScale;
+  setArcProgress((S.currentRound*total+S.phaseIdx)/(S.totalRounds*total)*100);
   var sec=phase.s;
   clearInterval(S.breathTimer);
   S.breathTimer=setInterval(function(){
@@ -1481,12 +1707,12 @@ function markDot(idx){var d=document.getElementById('rdot-'+idx);if(d){d.classLi
 function togglePause(){
   S.paused=!S.paused;
   var pb=document.getElementById('pause-btn'),badge=document.getElementById('paused-badge'),btn=document.getElementById('breath-btn');
-  if(S.paused){clearInterval(S.breathTimer);clearInterval(S.cdTimer);stopSound();pb.textContent='Resume';badge.classList.add('show');btn.style.transition='transform .4s ease';btn.style.transform='scale(1)';btn.style.background='radial-gradient(ellipse at 35% 30%,#9B8EC4,#2f354a)';setCircle('Paused','','');}
-  else{pb.textContent='Pause';badge.classList.remove('show');runPhase();}
+  if(S.paused){clearInterval(S.breathTimer);clearInterval(S.cdTimer);stopSound();stopAmbient();pb.textContent='Resume';badge.classList.add('show');btn.style.transition='transform .4s ease';btn.style.transform='scale(1)';btn.style.background='radial-gradient(ellipse at 35% 30%,#9B8EC4,#2f354a)';setCircle('Paused','','');}
+  else{pb.textContent='Pause';badge.classList.remove('show');startAmbient();runPhase();}
 }
 
 function stopPractice(){clearInterval(S.breathTimer);clearInterval(S.cdTimer);stopSound();S.started=false;S.paused=false;show('drills')}
-function completePractice(){clearInterval(S.breathTimer);stopSound();document.getElementById('timer-bar').style.width='100%';document.getElementById('complete-message').textContent=COMPLETE_MSG[S.energy];saveSession();show('complete')}
+function completePractice(){clearInterval(S.breathTimer);stopSound();stopAmbient();setArcProgress(100);document.getElementById('complete-message').textContent=COMPLETE_MSG[S.energy];saveSession();show('complete')}
 function repeatDrill(){selectDrill(S.drill)}
 
 /* AUDIO */
@@ -1834,6 +2060,198 @@ function dismissBanner(){
 
 function showSuggest(){show('suggest')}
 function trackSuggest(){/* future analytics hook */}
+
+/* ═══════════════════════════════════════════════════
+   ONBOARDING
+═══════════════════════════════════════════════════ */
+function nextOnboard(slide){
+  for(var i=1;i<=3;i++){
+    var el=document.getElementById('ob'+i);
+    if(el) el.style.display=i===slide?'flex':'none';
+  }
+}
+
+function finishOnboard(){
+  try{localStorage.setItem('eb_onboarded','1');}catch(e){}
+  var all=document.querySelectorAll('.screen');
+  for(var i=0;i<all.length;i++) all[i].classList.remove('active');
+  document.getElementById('screen-auth').classList.add('active');
+}
+
+/* Check on load — skip onboarding if already seen */
+(function checkOnboard(){
+  try{
+    if(localStorage.getItem('eb_onboarded')){
+      var ob=document.getElementById('screen-onboard');
+      var au=document.getElementById('screen-auth');
+      if(ob) ob.classList.remove('active');
+      if(au) au.classList.add('active');
+    }
+  }catch(e){}
+})();
+
+/* ═══════════════════════════════════════════════════
+   AMBIENT SOUND ENGINE
+═══════════════════════════════════════════════════ */
+var _ambientCtx    = null;
+var _ambientNodes  = [];
+var _ambientChoice = 'off';
+var _ambientGain   = null;
+var _ambientPlaying= false;
+
+function getAmbCtx(){
+  if(!_ambientCtx){
+    try{_ambientCtx=new(window.AudioContext||window.webkitAudioContext)();}catch(e){}
+  }
+  if(_ambientCtx&&_ambientCtx.state==='suspended')_ambientCtx.resume();
+  return _ambientCtx;
+}
+
+function selectSound(choice){
+  _ambientChoice=choice;
+  try{localStorage.setItem('eb_sound',choice);}catch(e){}
+  /* Update UI */
+  var options=['off','rain','bowls','drone','nature'];
+  options.forEach(function(o){
+    var el=document.getElementById('sound-'+o);
+    if(!el)return;
+    el.classList.toggle('selected',o===choice);
+    el.querySelector('.sound-option-check').textContent=o===choice?'✓':'';
+  });
+  /* Update mute btn */
+  var mb=document.getElementById('mute-btn');
+  if(mb) mb.textContent=choice==='off'?'🔇':'🔔';
+  /* Restart if currently playing */
+  if(_ambientPlaying){stopAmbient();startAmbient();}
+}
+
+function loadSoundPref(){
+  try{
+    var saved=localStorage.getItem('eb_sound');
+    if(saved) selectSound(saved);
+  }catch(e){}
+}
+
+function startAmbient(){
+  if(_ambientChoice==='off')return;
+  var ctx=getAmbCtx();
+  if(!ctx)return;
+  stopAmbient();
+  _ambientPlaying=true;
+  _ambientGain=ctx.createGain();
+  _ambientGain.connect(ctx.destination);
+  _ambientGain.gain.setValueAtTime(0,ctx.currentTime);
+  _ambientGain.gain.linearRampToValueAtTime(0.18,ctx.currentTime+2);
+
+  if(_ambientChoice==='drone')     buildDrone(ctx);
+  else if(_ambientChoice==='bowls')buildBowls(ctx);
+  else if(_ambientChoice==='rain') buildRain(ctx);
+  else if(_ambientChoice==='nature')buildNature(ctx);
+}
+
+function stopAmbient(){
+  _ambientPlaying=false;
+  if(_ambientGain){
+    try{
+      var ctx=_ambientCtx;
+      _ambientGain.gain.setValueAtTime(_ambientGain.gain.value,ctx.currentTime);
+      _ambientGain.gain.linearRampToValueAtTime(0,ctx.currentTime+1.5);
+    }catch(e){}
+  }
+  setTimeout(function(){
+    _ambientNodes.forEach(function(n){try{n.stop();}catch(e){}});
+    _ambientNodes=[];
+  },1600);
+}
+
+/* DRONE — layered low sines, slowly beating */
+function buildDrone(ctx){
+  [[60,0.5],[60.15,0.3],[90,0.25],[45,0.2]].forEach(function(pair){
+    var o=ctx.createOscillator(),g=ctx.createGain();
+    o.type='sine';o.frequency.value=pair[0];
+    g.gain.value=pair[1];
+    o.connect(g);g.connect(_ambientGain);
+    o.start();_ambientNodes.push(o);
+  });
+}
+
+/* SINGING BOWLS — slow periodic tone swells */
+function buildBowls(ctx){
+  var freqs=[174,285,396,417,528];
+  function strikeBowl(){
+    if(!_ambientPlaying)return;
+    var freq=freqs[Math.floor(Math.random()*freqs.length)];
+    var o=ctx.createOscillator(),g=ctx.createGain();
+    o.type='sine';o.frequency.value=freq;
+    g.gain.setValueAtTime(0,ctx.currentTime);
+    g.gain.linearRampToValueAtTime(0.4,ctx.currentTime+0.08);
+    g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+6);
+    o.connect(g);g.connect(_ambientGain);
+    o.start();o.stop(ctx.currentTime+7);
+    _ambientNodes.push(o);
+    setTimeout(strikeBowl,(4000+Math.random()*5000));
+  }
+  strikeBowl();
+}
+
+/* RAIN — filtered white noise */
+function buildRain(ctx){
+  var buf=ctx.createBuffer(1,ctx.sampleRate*2,ctx.sampleRate);
+  var d=buf.getChannelData(0);
+  for(var i=0;i<d.length;i++)d[i]=(Math.random()*2-1);
+  var src=ctx.createBufferSource();
+  src.buffer=buf;src.loop=true;
+  var filt=ctx.createBiquadFilter();
+  filt.type='bandpass';filt.frequency.value=400;filt.Q.value=0.5;
+  var filt2=ctx.createBiquadFilter();
+  filt2.type='lowpass';filt2.frequency.value=3000;
+  src.connect(filt);filt.connect(filt2);filt2.connect(_ambientGain);
+  src.start();_ambientNodes.push(src);
+}
+
+/* NATURE — layered filtered noise at different bands to suggest birds/wind */
+function buildNature(ctx){
+  /* Wind layer */
+  var buf=ctx.createBuffer(1,ctx.sampleRate*2,ctx.sampleRate);
+  var d=buf.getChannelData(0);
+  for(var i=0;i<d.length;i++)d[i]=(Math.random()*2-1);
+  var wind=ctx.createBufferSource();
+  wind.buffer=buf;wind.loop=true;
+  var wf=ctx.createBiquadFilter();
+  wf.type='lowpass';wf.frequency.value=600;
+  var wg=ctx.createGain();wg.gain.value=0.5;
+  wind.connect(wf);wf.connect(wg);wg.connect(_ambientGain);
+  wind.start();_ambientNodes.push(wind);
+  /* Birdsong layer — brief high sine chirps */
+  function chirp(){
+    if(!_ambientPlaying)return;
+    var o=ctx.createOscillator(),g=ctx.createGain();
+    var freq=2000+Math.random()*1500;
+    o.type='sine';
+    o.frequency.setValueAtTime(freq,ctx.currentTime);
+    o.frequency.linearRampToValueAtTime(freq*1.15,ctx.currentTime+0.08);
+    o.frequency.linearRampToValueAtTime(freq,ctx.currentTime+0.18);
+    g.gain.setValueAtTime(0,ctx.currentTime);
+    g.gain.linearRampToValueAtTime(0.15,ctx.currentTime+0.04);
+    g.gain.linearRampToValueAtTime(0,ctx.currentTime+0.2);
+    o.connect(g);g.connect(_ambientGain);
+    o.start();o.stop(ctx.currentTime+0.25);
+    _ambientNodes.push(o);
+    setTimeout(chirp,1500+Math.random()*4000);
+  }
+  setTimeout(chirp,1000);
+}
+
+/* ═══════════════════════════════════════════════════
+   ARC PROGRESS (replaces linear timer bar)
+═══════════════════════════════════════════════════ */
+var ARC_CIRC=295.3;
+function setArcProgress(pct){
+  var el=document.getElementById('arc-circle');
+  if(!el)return;
+  el.style.strokeDashoffset=ARC_CIRC*(1-pct/100);
+}
+
 function makeCrumbs(items){var labels={flare:'🔴 Flare Day',moderate:'🟠 Moderate Day',good:'🟢 Good Day'};return items.map(function(x,i){var label=labels[x]||x,active=i===items.length-1?' active':'',sep=i<items.length-1?'<span class="crumb-dot"></span>':'';return'<span class="crumb'+active+'">'+label+'</span>'+sep}).join('')}
 
 
@@ -1848,13 +2266,17 @@ var firebaseConfig={
   messagingSenderId:"209396409999",
   appId:"1:209396409999:web:356630ecc415c32c2532fa"
 };
-firebase.initializeApp(firebaseConfig);
-var auth=firebase.auth();
-var db=firebase.firestore();
+if(typeof firebase==='undefined'){
+  console.error('Firebase failed to load — check network connection');
+} else {
+  firebase.initializeApp(firebaseConfig);
+}
+var auth  = typeof firebase!=='undefined' ? firebase.auth()      : null;
+var db    = typeof firebase!=='undefined' ? firebase.firestore() : null;
 var currentUser=null;
 
 /* Auth state listener */
-auth.onAuthStateChanged(function(user){
+if(auth) auth.onAuthStateChanged(function(user){
   if(user){
     currentUser=user;
     onUserLoggedIn(user);
@@ -1865,22 +2287,24 @@ auth.onAuthStateChanged(function(user){
 });
 
 function onUserLoggedIn(user){
+  /* Clear ALL screens first */
+  var all=document.querySelectorAll('.screen');
+  for(var i=0;i<all.length;i++) all[i].classList.remove('active');
+  /* Show header */
   document.getElementById('app-header').style.display='flex';
-  document.getElementById('screen-auth').classList.remove('active');
-  /* Update profile button with initial */
+  /* Update profile button initial */
   var initial=(user.displayName||user.email||'?')[0].toUpperCase();
   document.getElementById('profile-btn').textContent=initial;
-  /* Load user profile from Firestore */
+  /* Load Firestore profile */
   loadUserProfile(user);
-  /* Migrate any localStorage sessions to Firestore */
+  /* Migrate localStorage sessions */
   migrateLocalSessions(user.uid);
-  /* Show energy screen */
+  /* Show home screen */
   show('energy');
 }
 
 function onUserLoggedOut(){
   document.getElementById('app-header').style.display='none';
-  /* Hide all screens and show auth */
   var all=document.querySelectorAll('.screen');
   for(var i=0;i<all.length;i++) all[i].classList.remove('active');
   document.getElementById('screen-auth').classList.add('active');
@@ -1896,6 +2320,7 @@ function doSignIn(){
   if(!email||!pass){showAuthError('si-error','Please fill in all fields.');return;}
   loadEl.classList.add('show');
   document.querySelector('#auth-signin .auth-btn').disabled=true;
+  if(!auth){showAuthError('si-error','App not ready. Please refresh and try again.');return;}
   auth.signInWithEmailAndPassword(email,pass)
     .catch(function(e){
       loadEl.classList.remove('show');
@@ -1916,6 +2341,7 @@ function doSignUp(){
   if(pass.length<6){showAuthError('su-error','Password must be at least 6 characters.');return;}
   loadEl.classList.add('show');
   document.querySelector('#auth-signup .auth-btn').disabled=true;
+  if(!auth){showAuthError('su-error','App not ready. Please refresh and try again.');return;}
   auth.createUserWithEmailAndPassword(email,pass)
     .then(function(cred){
       return cred.user.updateProfile({displayName:name}).then(function(){
@@ -1931,6 +2357,7 @@ function doSignUp(){
 
 /* ── GOOGLE SIGN IN ── */
 function doGoogleSignIn(){
+  if(!auth){return;}
   var provider=new firebase.auth.GoogleAuthProvider();
   auth.signInWithPopup(provider)
     .then(function(result){
@@ -2169,7 +2596,10 @@ function clearHistory(){
 }
 
 if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){})})}
-(function(){if(loadRemindersFromStorage())startReminderChecker()})();
+(function(){
+  if(loadRemindersFromStorage())startReminderChecker();
+  loadSoundPref();
+})();
 </script>
 </body>
 </html>
