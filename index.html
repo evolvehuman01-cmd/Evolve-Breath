@@ -2260,7 +2260,7 @@ function makeCrumbs(items){var labels={flare:'🔴 Flare Day',moderate:'🟠 Mod
 ═══════════════════════════════════════════════════ */
 var firebaseConfig={
   apiKey:"AIzaSyBCZuCM-8fI27Iu6v4zE4AT3J2DA0IgM0w",
-  authDomain:"evolvehuman01-cmd.github.io",
+  authDomain:"evolve-breath.firebaseapp.com",
   projectId:"evolve-breath",
   storageBucket:"evolve-breath.firebasestorage.app",
   messagingSenderId:"209396409999",
@@ -2359,16 +2359,30 @@ function doSignUp(){
 function doGoogleSignIn(){
   if(!auth){return;}
   var provider=new firebase.auth.GoogleAuthProvider();
-  auth.signInWithPopup(provider)
-    .then(function(result){
-      /* Create profile if first time */
-      var user=result.user;
-      db.collection('users').doc(user.uid).get().then(function(doc){
-        if(!doc.exists) createUserProfile(user, user.displayName||user.email.split('@')[0]);
-      });
-    })
+  /* Use redirect instead of popup — works reliably on mobile */
+  auth.signInWithRedirect(provider)
     .catch(function(e){
       showAuthError('si-error',friendlyAuthError(e.code));
+    });
+}
+
+/* Handle Google redirect result on page load */
+function handleGoogleRedirect(){
+  if(!auth)return;
+  auth.getRedirectResult()
+    .then(function(result){
+      if(result&&result.user){
+        /* First time Google sign-in — create profile if needed */
+        var user=result.user;
+        if(db){
+          db.collection('users').doc(user.uid).get().then(function(doc){
+            if(!doc.exists) createUserProfile(user, user.displayName||user.email.split('@')[0]);
+          });
+        }
+      }
+    })
+    .catch(function(e){
+      if(e.code) showAuthError('si-error',friendlyAuthError(e.code));
     });
 }
 
@@ -2599,6 +2613,7 @@ if('serviceWorker' in navigator){window.addEventListener('load',function(){navig
 (function(){
   if(loadRemindersFromStorage())startReminderChecker();
   loadSoundPref();
+  handleGoogleRedirect();
 })();
 </script>
 </body>
