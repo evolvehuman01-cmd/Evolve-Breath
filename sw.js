@@ -3,7 +3,7 @@
    This forces users to receive the latest version of the app.
 */
 
-var CACHE_VERSION = 5;
+var CACHE_VERSION = 6;
 var CACHE_NAME = 'evolve-breath-v' + CACHE_VERSION;
 
 /* Install: cache all core assets */
