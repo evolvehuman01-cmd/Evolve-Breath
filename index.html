@@ -1566,6 +1566,11 @@ var PHASE_PATTERNS={
   'Nasal Breathing Prep':  [{p:'Inhale',s:4},{p:'Exhale',s:4}]
 };
 
+var DAY_SHORT=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+var MONTH_SHORT=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+var ENERGY_LABEL={flare:'Flare Day',moderate:'Moderate Day',good:'Good Day'};
+var ENERGY_COLOUR={flare:'#FF8A80',moderate:'#FFD180',good:'#A5D6A7'};
+
 var TIME_MAP={
   flare:    [{label:'1 minute',   key:'1',   rec:true, opt:false},{label:'2 minutes',  key:'2',   rec:false,opt:false}],
   moderate: [{label:'1-2 minutes',key:'1-2', rec:true, opt:false},{label:'5 minutes',  key:'5',   rec:true, opt:false},{label:'10 minutes',key:'10',rec:false,opt:true}],
@@ -1938,11 +1943,11 @@ function dotHTML(energy,title){
   return'<div class="chart-dot '+energy+'" title="'+title+'"></div>';
 }
 
-function buildSummary(sessions){
+function buildSummary(sessions,label){
   if(!sessions.length)return'';
   var c={flare:0,moderate:0,good:0};
   sessions.forEach(function(s){if(c[s.energy]!==undefined)c[s.energy]++});
-  return'<div class="summary-card"><div class="summary-num">'+sessions.length+'</div><div class="summary-label">Sessions</div></div>'
+  return'<div class="summary-card"><div class="summary-num">'+sessions.length+'</div><div class="summary-label">'+(label||'Sessions')+'</div></div>'
     +'<div class="summary-card"><div class="summary-num" style="color:'+ENERGY_COLOUR.flare+'">'+c.flare+'</div><div class="summary-label"><span class="summary-dot flare-dot"></span>Flare</div></div>'
     +'<div class="summary-card"><div class="summary-num" style="color:'+ENERGY_COLOUR.moderate+'">'+c.moderate+'</div><div class="summary-label"><span class="summary-dot moderate-dot"></span>Moderate</div></div>'
     +'<div class="summary-card"><div class="summary-num" style="color:'+ENERGY_COLOUR.good+'">'+c.good+'</div><div class="summary-label"><span class="summary-dot good-dot"></span>Good</div></div>';
@@ -2118,6 +2123,8 @@ var _ambientNodes  = [];
 var _ambientChoice = 'off';
 var _ambientGain   = null;
 var _ambientPlaying= false;
+var _bowlTimer     = null;
+var _chirpTimer    = null;
 
 function getAmbCtx(){
   if(!_ambientCtx){
@@ -2171,6 +2178,8 @@ function startAmbient(){
 
 function stopAmbient(){
   _ambientPlaying=false;
+  if(_bowlTimer){clearTimeout(_bowlTimer);_bowlTimer=null;}
+  if(_chirpTimer){clearTimeout(_chirpTimer);_chirpTimer=null;}
   if(_ambientGain){
     try{
       var ctx=_ambientCtx;
@@ -2209,7 +2218,7 @@ function buildBowls(ctx){
     o.connect(g);g.connect(_ambientGain);
     o.start();o.stop(ctx.currentTime+7);
     _ambientNodes.push(o);
-    setTimeout(strikeBowl,(4000+Math.random()*5000));
+    _bowlTimer=setTimeout(strikeBowl,(4000+Math.random()*5000));
   }
   strikeBowl();
 }
@@ -2257,9 +2266,9 @@ function buildNature(ctx){
     o.connect(g);g.connect(_ambientGain);
     o.start();o.stop(ctx.currentTime+0.25);
     _ambientNodes.push(o);
-    setTimeout(chirp,1500+Math.random()*4000);
+    _chirpTimer=setTimeout(chirp,1500+Math.random()*4000);
   }
-  setTimeout(chirp,1000);
+  _chirpTimer=setTimeout(chirp,1000);
 }
 
 /* ═══════════════════════════════════════════════════
@@ -2409,7 +2418,7 @@ function handleGoogleRedirect(){
       }
     })
     .catch(function(e){
-      if(e.code) showAuthError('si-error',friendlyAuthError(e.code));
+      if(e.code){var panel=document.getElementById('auth-signup').style.display!=='none'?'su-error':'si-error';showAuthError(panel,friendlyAuthError(e.code));}
     });
 }
 
@@ -2481,7 +2490,7 @@ function loadSessionStats(uid){
       var sessions=[];
       snap.forEach(function(d){sessions.push(d.data())});
       /* Total */
-      document.getElementById('stat-total').textContent=sessions.length;
+      document.getElementById('stat-total').textContent=sessions.length>=100?'100+':sessions.length;
       /* This week */
       var now=new Date(),weekAgo=new Date(now-7*86400000);
       var thisWeek=sessions.filter(function(s){return new Date(s.ts)>=weekAgo}).length;
@@ -2630,7 +2639,7 @@ function clearHistory(){
         var batch=db.batch();
         snap.forEach(function(d){batch.delete(d.ref)});
         return batch.commit();
-      }).then(function(){renderSessions()});
+      }).then(function(){renderSessions();}).catch(function(){renderSessions();});
     return;
   }
   renderSessions();
